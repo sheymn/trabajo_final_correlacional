@@ -56,22 +56,41 @@ casen2022 <- casen2022 %>%
 
 Detalle de las variables incluidas en el análisis, así como escalas de medición.
 
+### Tamaño de la empresa (Variable dependiente)
+
+```{r}
+sjmisc::frq(casen2022$tamaño_empresa)
+```
+
+
 ### Pertenece a sindicato/organizacion
+
 ```{r}
 
-# Crear variable de pertenencia a almenos una organizacion laboral
-proc_casen <- casen2022 %>%
+# Crear variable de pertenencia a almenos una organización laboral
+casen2022 <- casen2022 %>%
   mutate(
     pert_organizacion = case_when(
-      pertenece_sindicato == 1 | pertenece_asoc_func == 1 | pertenece_gremio == 1 | pertenece_colegio_prof == 1 ~ 1,  # Está afiliado (no carente)
-      pertenece_sindicato == 2 & pertenece_asoc_func== 2 & pertenece_gremio == 2 & pertenece_colegio_prof == 2 ~ 0,  # No afiliado (carente)
+      pertenece_sindicato == 1 | pertenece_asoc_func == 1 | pertenece_gremio == 1 |
+        pertenece_colegio_prof == 1 ~ 1,  # Está afiliado (no carente)
+      pertenece_sindicato == 2  & pertenece_gremio == 2 & 
+        pertenece_colegio_prof == 2 ~ 0,  # No afiliado (carente)
       TRUE ~ NA_real_                                     # No sabe / No aplica
     )
   )
 
-sjmisc::frq(proc_casen$pertenece_sindicato)
+sjmisc::frq(casen2022$pertenece_sindicato)
+sjmisc::frq(casen2022$pertenece_asoc_func)
 
+sjmisc::frq(casen2022$pert_organizacion)
 ```
+
+### Tipo de empleo
+
+```{r}
+sjmisc::frq(casen2022$contrato)
+```
+
 
 ## Métodos
 
