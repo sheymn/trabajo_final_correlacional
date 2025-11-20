@@ -17,7 +17,7 @@ pacman::p_load(tidyverse, # Manipulacion datos
 options(scipen = 999) # para desactivar notacion cientifica
 rm(list = ls()) # para limpiar el entorno de trabajo
 
-casen2022 <- read_sav("input/Base de datos Casen 2022 SPSS_18 marzo 2024.sav") # llamar desde carpeta localcasen2022_subset <- casen2022 %>% 
+casen2022 <- read_sav("input/data-orig/Base de datos Casen 2022 SPSS_18 marzo 2024.sav") # llamar desde carpeta localcasen2022_subset <- casen2022 %>% 
 
 casen2022 <- read_dta("input/data-orig/ene-2024-11-ond.dta") # llamar desde carpeta localcasen2022_subset <- casen2022 %>% 
 
@@ -40,7 +40,7 @@ rm(list = c('casen2022_subset')) # quitar del environment para liberar espacio e
 save(casen2022, 
      file = "input/data/casen2022.Rdata") #guardar objeto
 
-load("input/data/casen2022.Rdata")
+load("input/data-proc/casen2022.Rdata")
 
 casen2022 <- casen2022 %>%
   mutate(across(everything(), ~ na_if(., -88)))
@@ -57,12 +57,13 @@ sjPlot::sjt.xtab(var.row = casen2022$tamaño_empresa,
                  show.col.prc = T # porcentaje columna
 )
 
-sjmisc::frq(casen2022$tamaño_empresa)
 sjmisc::frq(casen2022$pertenece_sindicato)
+
+sjmisc::frq(casen2022$o26a)
 
 casen2022 <- casen2022 %>%
   mutate(pertenece_asoc = as.numeric(if_any(c(pertenece_sindicato, pertenece_asoc_func, 
-                                 pertenece_gremio, pertenece_colegio_prof), ~ . == 1)))
+                                              pertenece_gremio, pertenece_colegio_prof), ~ . == 1)))
 
 ### Descriptivos ----
 

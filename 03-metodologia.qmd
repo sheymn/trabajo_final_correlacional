@@ -6,7 +6,7 @@ title: "Metodología"
 
 ### Preparación de datos
 
-SACAR \# ANTES DE ENVIAR
+SACAR ANTES DE ENVIAR
 
 ```{r cargar-paquetes}
 #| message: false
@@ -28,7 +28,11 @@ pacman::p_load(tidyverse, # Manipulacion datos
                ggpubr,
                gtsummary,
                dplyr,
-               stargazer)
+               stargazer,
+               janitor,
+               descr)
+
+options(scipen = 999) # para desactivar notacion cientifica
 ```
 
 ```{r cargar-datos-proc}
@@ -37,10 +41,10 @@ pacman::p_load(tidyverse, # Manipulacion datos
 load("input/data-proc/casen2022.Rdata")
 
 # Asignar NAs a los valores -99 y -88
-casen2022 <- casen2022 %>%
+proc_casen <- casen2022 %>%
   mutate(across(everything(), ~ na_if(., -88)))
 
-casen2022 <- casen2022 %>%
+proc_casen <- casen2022 %>%
   mutate(across(everything(), ~ na_if(., -99)))
 ```
 
@@ -56,39 +60,46 @@ casen2022 <- casen2022 %>%
 
 Detalle de las variables incluidas en el análisis, así como escalas de medición.
 
+
 ### Tamaño de la empresa (Variable dependiente)
 
 ```{r}
-sjmisc::frq(casen2022$tamaño_empresa)
+sjmisc::frq(casen2022$tamaño_empresa) %>%
+  as.data.frame() %>%  .[, -1] %>%  # Elimina la primera columna
+  kable(col.names = c("Valor", "Etiqueta", "Frecuencia", "Porcentaje Bruto", "Porcentaje Acumulado")) %>% kable_classic()
 ```
 
 
-### Pertenece a sindicato/organizacion
+### Pertenece a sindicato
 
 ```{r}
-
-# Crear variable de pertenencia a almenos una organización laboral
-casen2022 <- casen2022 %>%
-  mutate(
-    pert_organizacion = case_when(
-      pertenece_sindicato == 1 | pertenece_asoc_func == 1 | pertenece_gremio == 1 |
-        pertenece_colegio_prof == 1 ~ 1,  # Está afiliado (no carente)
-      pertenece_sindicato == 2  & pertenece_gremio == 2 & 
-        pertenece_colegio_prof == 2 ~ 0,  # No afiliado (carente)
-      TRUE ~ NA_real_                                     # No sabe / No aplica
-    )
-  )
-
-sjmisc::frq(casen2022$pertenece_sindicato)
-sjmisc::frq(casen2022$pertenece_asoc_func)
-
-sjmisc::frq(casen2022$pert_organizacion)
+sjmisc::frq(casen2022$pertenece_sindicato) %>%
+  as.data.frame() %>%  .[, -1] %>%  # Elimina la primera columna
+  kable(col.names = c("Valor", "Etiqueta", "Frecuencia", "Porcentaje Bruto", "Porcentaje Acumulado")) %>% kable_classic()
 ```
 
 ### Tipo de empleo
 
 ```{r}
-sjmisc::frq(casen2022$contrato)
+sjmisc::frq(casen2022$trabajo_como) %>%
+  as.data.frame() %>%  .[, -1] %>%  # Elimina la primera columna
+  kable(col.names = c("Valor", "Etiqueta", "Frecuencia", "Porcentaje Bruto", "Porcentaje Acumulado")) %>% kable_classic()
+# operacionalizar para trabajo independiente1
+```
+
+### Ingresos
+
+```{r}
+proc_casen %>% 
+   summarise(
+       n = n(), # Tamaño muestral
+       min = min(salario, na.rm = T), # Mínimo
+       max = max(salario, na.rm = T), # Máximo
+       media = round(mean(salario, na.rm = T), 2), # Media redondeada a 2 digitos
+       sd = round(sd(salario, na.rm = T), 2), # Desviación estándar redondeada a 2 digitos
+       mediana = median(salario, na.rm = T), # Mediana
+       cv = round((media/sd)*100, 2) # Coeficiente de variación redondeado a 2 digi
+       ) %>% kable(full_width = F, align = "c") %>% kable_classic()
 ```
 
 

@@ -21,5 +21,9 @@ rm(list = c('casen2022')) # quitar del environment para liberar espacio en la me
 casen2022 <- casen2022_subset
 rm(list = c('casen2022_subset')) # quitar del environment para liberar espacio en la memoria
 
+# Filtrar filas que cumplen una condición
+casen2022 <- casen2022 %>%
+  filter(ocupado == 1)
+
 save(casen2022, 
      file = "input/data-proc/casen2022.Rdata") #guardar objeto
