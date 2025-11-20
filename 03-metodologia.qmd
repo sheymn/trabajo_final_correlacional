@@ -42,9 +42,7 @@ load("input/data-proc/casen2022.Rdata")
 
 # Asignar NAs a los valores -99 y -88
 proc_casen <- casen2022 %>%
-  mutate(across(everything(), ~ na_if(., -88)))
-
-proc_casen <- casen2022 %>%
+  mutate(across(everything(), ~ na_if(., -88))) %>%
   mutate(across(everything(), ~ na_if(., -99)))
 ```
 
@@ -118,6 +116,7 @@ proc_casen %>%
        mediana = median(salario, na.rm = T), # Mediana
        cv = round((media/sd)*100, 2) # Coeficiente de variación redondeado a 2 digi
        ) %>% kable(full_width = F, align = "c") %>% kable_classic()
+
 ```
 
 
