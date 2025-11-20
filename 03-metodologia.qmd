@@ -97,8 +97,8 @@ proc_casen$trabajador_indep <- haven::labelled(
 
 sjmisc::frq(proc_casen$trabajador_indep) %>%
   as.data.frame() %>%  .[, -1] %>%  # Elimina la primera columna
-  kable(col.names = c("Valor", "Etiqueta", "Frecuencia", "Porcentaje Bruto", 
-                      "Porcentaje Acumulado")) %>% 
+  kable(col.names = c("Valor", "Etiqueta", "Frecuencia", "Porcentaje Bruto",
+                      "Porcentaje Acumulado")) %>%
   kable_classic()
 
 ```
@@ -116,6 +116,36 @@ proc_casen %>%
        mediana = median(salario, na.rm = T), # Mediana
        cv = round((media/sd)*100, 2) # Coeficiente de variación redondeado a 2 digi
        ) %>% kable(full_width = F, align = "c") %>% kable_classic()
+
+```
+
+### Formalidad
+
+```{r}
+
+
+proc_casen <- proc_casen %>% mutate(
+  formalidad = case_when(
+    contrato == 1 ~ 1,
+    contrato == 3 ~ 0
+  )
+)
+
+# Asignar etiquetas a la variable
+proc_casen$formalidad <- haven::labelled(
+  proc_casen$formalidad,
+  labels = c(
+    "Trabajador informal" = 0,
+    "Trabajador Formal" = 1
+  )
+)
+
+sjmisc::frq(proc_casen$formalidad) %>%
+  as.data.frame() %>%  .[, -1] %>%  # Elimina la primera columna
+  kable(col.names = c("Valor", "Etiqueta", "Frecuencia", "Porcentaje Bruto",
+                      "Porcentaje Acumulado")) %>%
+  kable_classic()
+
 
 ```
 
