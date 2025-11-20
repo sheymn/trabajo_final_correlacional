@@ -21,6 +21,7 @@ Presentacion de los resultados de los modelos propuestos, con interpretacion y c
 cor.test(proc_casen$tamaño_empresa, proc_casen$formalidad)
 
 t.test(proc_casen$salario, proc_casen$pertenece_sindicato)
+
 cor.test(proc_casen$pertenece_sindicato, proc_casen$deciles_salario, use = "complete.obs")
 
 # Crear deciles de salario
@@ -42,8 +43,24 @@ n <- na.omit(proc_casen %>% select(tamaño_empresa, trabajo_como)) %>% nrow()
 cramer <- sqrt(chiqtest$statistic / n*(2-1))
 
 
-cramer
 
+proc_casen <- proc_casen %>%
+  mutate(deciles_salario = ntile(salario, 10))
+
+# Calcular proporciones reales por decil
+prop_por_decil <- proc_casen %>%
+  group_by(deciles_salario) %>%
+  summarise(
+    prop_sindicato = mean(pertenece_sindicato, na.rm = TRUE),
+    n = n()
+  ) %>%
+  print()
+
+# Correlación a nivel de deciles (más representativa)
+cor(prop_por_decil$deciles_salario, prop_por_decil$prop_sindicato, 
+    use = "complete.obs")
+
+table(proc_casen$pertenece_sindicato, useNA = "always")
 
 ```
 

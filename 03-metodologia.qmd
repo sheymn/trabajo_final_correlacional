@@ -101,6 +101,15 @@ sjmisc::frq(proc_casen$trabajador_indep) %>%
                       "Porcentaje Acumulado")) %>%
   kable_classic()
 
+
+# operacionalizar para no empleadaores
+
+proc_casen <- proc_casen %>% mutate(
+  empleador = case_when(
+    trabajo_como == 1 ~ 1,
+    trabajo_como >= 3 & trabajo_como < 6 ~ 0  )
+)
+
 ```
 
 ### Ingresos
@@ -122,7 +131,6 @@ proc_casen %>%
 ### Formalidad
 
 ```{r}
-
 
 proc_casen <- proc_casen %>% mutate(
   formalidad = case_when(
