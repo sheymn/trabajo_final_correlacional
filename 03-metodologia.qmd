@@ -48,13 +48,6 @@ proc_casen <- casen2022 %>%
   mutate(across(everything(), ~ na_if(., -99)))
 ```
 
-```{r resumen-datos}
-#| echo: false
-
-# Resumen estadístico
-
-
-```
 
 ## Variables
 
@@ -84,7 +77,32 @@ sjmisc::frq(casen2022$pertenece_sindicato) %>%
 sjmisc::frq(casen2022$trabajo_como) %>%
   as.data.frame() %>%  .[, -1] %>%  # Elimina la primera columna
   kable(col.names = c("Valor", "Etiqueta", "Frecuencia", "Porcentaje Bruto", "Porcentaje Acumulado")) %>% kable_classic()
+
 # operacionalizar para trabajo independiente1
+
+proc_casen <- proc_casen %>% mutate(
+  trabajador_indep = case_when(
+    trabajo_como == 2 ~ 1,
+    trabajo_como == 1 ~ 0,
+    trabajo_como > 2 ~ 0
+  )
+)
+
+# Asignar etiquetas a la variable
+proc_casen$trabajador_indep <- haven::labelled(
+  proc_casen$trabajador_indep,
+  labels = c(
+    "No es trabajador independiente" = 0,
+    "Sí es trabajador independiente" = 1
+  )
+)
+
+sjmisc::frq(proc_casen$trabajador_indep) %>%
+  as.data.frame() %>%  .[, -1] %>%  # Elimina la primera columna
+  kable(col.names = c("Valor", "Etiqueta", "Frecuencia", "Porcentaje Bruto", 
+                      "Porcentaje Acumulado")) %>% 
+  kable_classic()
+
 ```
 
 ### Ingresos
