@@ -6,33 +6,28 @@ title: "Metodología"
 
 ### Preparación de datos
 
-SACAR ANTES DE ENVIAR
-
 ```{r cargar-paquetes}
 #| message: false
 #| warning: false
 # Carga paquetes
 
-pacman::p_load(tidyverse, # Manipulacion datos
-               sjPlot, # Graficos y tablas
+pacman::p_load(tidyverse, # Manipulación datos
+               sjPlot, # Gráficos y tablas
                sjmisc, # Descriptivos
                corrplot, # Correlaciones
                psych, # Test estadísticos
                kableExtra, # Tablas
-               rempsyc,
-               broom,
                sjstats,
-               gginference,
                haven,
                ggplot2,
                ggpubr,
                gtsummary,
                dplyr,
                stargazer,
-               janitor,
-               descr)
+               descr,
+               table1)
 
-options(scipen = 999) # para desactivar notacion cientifica
+options(scipen = 999) # para desactivar notación científica
 ```
 
 ```{r cargar-datos-proc}
@@ -42,121 +37,60 @@ load("input/data-proc/casen2022.Rdata")
 
 # Asignar NAs a los valores -99 y -88
 proc_casen <- casen2022 %>%
-  mutate(across(everything(), ~ na_if(., -88))) %>%
+  mutate(across(everything(), ~ na_if(., -88))) %>%  
   mutate(across(everything(), ~ na_if(., -99)))
-```
 
+# Variable trabajar en PYME
+proc_casen <- proc_casen %>% mutate(
+  pyme = case_when(
+    tamaño_empresa <= 5 ~ 1,
+    tamaño_empresa == 6 ~ 0,
+  )
+)
+
+# Variable FORMALIDAD
+proc_casen <- proc_casen %>% mutate(
+  formalidad = case_when(
+    contrato <= 2 ~ 1,
+    contrato == 3 ~ 0
+  )
+)
+
+proc_casen <- proc_casen %>% mutate(
+  pertenece_sindicato = case_when(
+    pertenece_sindicato == 1 ~ 1,
+    pertenece_sindicato == 2 ~ 0,
+  )
+)
+
+proc_casen <- proc_casen %>%
+  mutate(across(everything(), ~ as.numeric(as.character(.x))))
+```
 
 ## Variables
 
 Detalle de las variables incluidas en el análisis, así como escalas de medición.
 
-
-### Tamaño de la empresa (Variable dependiente)
-
 ```{r}
-sjmisc::frq(casen2022$tamaño_empresa) %>%
-  as.data.frame() %>%  .[, -1] %>%  # Elimina la primera columna
-  kable(col.names = c("Valor", "Etiqueta", "Frecuencia", "Porcentaje Bruto", "Porcentaje Acumulado")) %>% kable_classic()
-```
-
-
-### Pertenece a sindicato
-
-```{r}
-sjmisc::frq(casen2022$pertenece_sindicato) %>%
-  as.data.frame() %>%  .[, -1] %>%  # Elimina la primera columna
-  kable(col.names = c("Valor", "Etiqueta", "Frecuencia", "Porcentaje Bruto", "Porcentaje Acumulado")) %>% kable_classic()
-```
-
-### Tipo de empleo
-
-```{r}
-sjmisc::frq(casen2022$trabajo_como) %>%
-  as.data.frame() %>%  .[, -1] %>%  # Elimina la primera columna
-  kable(col.names = c("Valor", "Etiqueta", "Frecuencia", "Porcentaje Bruto", "Porcentaje Acumulado")) %>% kable_classic()
-
-# operacionalizar para trabajo independiente1
-
-proc_casen <- proc_casen %>% mutate(
-  trabajador_indep = case_when(
-    trabajo_como == 2 ~ 1,
-    trabajo_como == 1 ~ 0,
-    trabajo_como > 2 ~ 0
-  )
-)
-
-# Asignar etiquetas a la variable
-proc_casen$trabajador_indep <- haven::labelled(
-  proc_casen$trabajador_indep,
-  labels = c(
-    "No es trabajador independiente" = 0,
-    "Sí es trabajador independiente" = 1
-  )
-)
-
-sjmisc::frq(proc_casen$trabajador_indep) %>%
-  as.data.frame() %>%  .[, -1] %>%  # Elimina la primera columna
-  kable(col.names = c("Valor", "Etiqueta", "Frecuencia", "Porcentaje Bruto",
-                      "Porcentaje Acumulado")) %>%
+# Crear tabla descriptiva
+proc_casen %>%
+  select(pertenece_sindicato, pyme, pertenece_sindicato, salario, formalidad) %>%
+  sjmisc::descr(show = c("range", "mean", "sd", "NA.prc", "n", "md")) %>% 
+  kable() %>% 
   kable_classic()
-
-
-# operacionalizar para no empleadaores
-
-proc_casen <- proc_casen %>% mutate(
-  empleador = case_when(
-    trabajo_como == 1 ~ 1,
-    trabajo_como >= 3 & trabajo_como < 6 ~ 0  )
-)
-
 ```
 
-### Ingresos
+Tras seleccionar las variables, se realizó una limpieza de la base de datos. Se re nombraron las variables a manera de facilitar el uso. Las preguntas correspondientes a las variables `tamaño_empresa`, `contrato` y `pertenece_sindicato` solo se respondían si la variable `ocupado` era igual 1, por lo que se filtraron todos los casos que no cumplían esa condición. Posterior a esto, todos los valores -99 y -88 fueron recodificados como NAs. 1
 
-```{r}
-proc_casen %>% 
-   summarise(
-       n = n(), # Tamaño muestral
-       min = min(salario, na.rm = T), # Mínimo
-       max = max(salario, na.rm = T), # Máximo
-       media = round(mean(salario, na.rm = T), 2), # Media redondeada a 2 digitos
-       sd = round(sd(salario, na.rm = T), 2), # Desviación estándar redondeada a 2 digitos
-       mediana = median(salario, na.rm = T), # Mediana
-       cv = round((media/sd)*100, 2) # Coeficiente de variación redondeado a 2 digi
-       ) %>% kable(full_width = F, align = "c") %>% kable_classic()
+Se re-codificaron las siguientes variables
 
-```
+-   `tamaño_empresa` fue re-codificada como `pyme` para que los casos que tuvieran valores menores o iguales a 5 (correspondiente a la respuesta "*De 50 a 199 personas"*) quedaran con valor 1 y quienes tengan valor 6 (correspondiente a la respuesta "*200 y más personas*") quedaran con valor 0.
 
-### Formalidad
+-   `contrato` fue re-codificada como `formalidad`, para que los casos con valores 1 y 2 (contrato firmado y contrato sin firmar, respectivamente) pasaran a ser 1 y los casos con valor 3 (no tiene contrato) pasara a ser 0
 
-```{r}
+-   `pertenece_sindicato` fue re-codificada para cambiar los valores 1 y 2 (pertenecer o no a un sindicato, respectivamente) por 1 y 0 respectivamente.
 
-proc_casen <- proc_casen %>% mutate(
-  formalidad = case_when(
-    contrato == 1 ~ 1,
-    contrato == 3 ~ 0
-  )
-)
-
-# Asignar etiquetas a la variable
-proc_casen$formalidad <- haven::labelled(
-  proc_casen$formalidad,
-  labels = c(
-    "Trabajador informal" = 0,
-    "Trabajador Formal" = 1
-  )
-)
-
-sjmisc::frq(proc_casen$formalidad) %>%
-  as.data.frame() %>%  .[, -1] %>%  # Elimina la primera columna
-  kable(col.names = c("Valor", "Etiqueta", "Frecuencia", "Porcentaje Bruto",
-                      "Porcentaje Acumulado")) %>%
-  kable_classic()
-
-
-```
-
+### Variable PYME
 
 ## Métodos
 

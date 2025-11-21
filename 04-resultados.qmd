@@ -7,61 +7,21 @@ Resumen de las estadisticas descriptivas clave y visualizaciones de apoyo.
 ```{r grafico-ejemplo}
 #| fig-cap: "Relacion X^2"
 #| warning: false
-if (requireNamespace("ggplot2", quietly = TRUE)) {
-  library(ggplot2)
-  ggplot(mtcars, aes(wt, mpg)) + geom_point()
-}
+
 ```
 
 ## Analisis bivariado
 
-Presentacion de los resultados de los modelos propuestos, con interpretacion y conclusiones.
 
 ```{r}
-cor.test(proc_casen$tamaño_empresa, proc_casen$formalidad)
+# cor.test(proc_casen$tamaño_empresa, proc_casen$formalidad)
+# 
+# t.test(proc_casen$salario, proc_casen$pertenece_sindicato)
 
-t.test(proc_casen$salario, proc_casen$pertenece_sindicato)
-
-cor.test(proc_casen$pertenece_sindicato, proc_casen$deciles_salario, use = "complete.obs")
-
-# Crear deciles de salario
-proc_casen <- proc_casen %>%
-  mutate(deciles_salario = ntile(salario, 10))
-
-# Gráfico de barras
-ggplot(proc_casen, aes(x = factor(deciles_salario), fill = factor(pertenece_sindicato))) +
-  geom_bar(position = "fill") +
-  labs(title = "Pertenencia a sindicato por deciles de salario",
-       x = "Deciles de salario",
-       y = "Proporción",
-       fill = "Pertenece a sindicato") +
-  scale_y_continuous(labels = scales::percent) +
-  theme_minimal()
-
-chiqtest <- chisq.test(proc_casen$tamaño_empresa, proc_casen$trabajo_como)
+chiqtest <- chisq.test(proc_casen$pyme, proc_casen$salario)
 n <- na.omit(proc_casen %>% select(tamaño_empresa, trabajo_como)) %>% nrow()
 cramer <- sqrt(chiqtest$statistic / n*(2-1))
-
-
-
-proc_casen <- proc_casen %>%
-  mutate(deciles_salario = ntile(salario, 10))
-
-# Calcular proporciones reales por decil
-prop_por_decil <- proc_casen %>%
-  group_by(deciles_salario) %>%
-  summarise(
-    prop_sindicato = mean(pertenece_sindicato, na.rm = TRUE),
-    n = n()
-  ) %>%
-  print()
-
-# Correlación a nivel de deciles (más representativa)
-cor(prop_por_decil$deciles_salario, prop_por_decil$prop_sindicato, 
-    use = "complete.obs")
-
-table(proc_casen$pertenece_sindicato, useNA = "always")
-
+cramer
 ```
 
 
