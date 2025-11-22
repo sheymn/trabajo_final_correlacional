@@ -1,0 +1,184 @@
+[
+  {
+    "objectID": "03-metodologia.html",
+    "href": "03-metodologia.html",
+    "title": "4  Metodología",
+    "section": "",
+    "text": "4.1 Datos",
+    "crumbs": [
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Metodología</span>"
+    ]
+  },
+  {
+    "objectID": "03-metodologia.html#datos",
+    "href": "03-metodologia.html#datos",
+    "title": "4  Metodología",
+    "section": "",
+    "text": "4.1.1 Preparación de datos\n\n# Carga paquetes\n\npacman::p_load(tidyverse, # Manipulación datos\n               sjPlot, # Gráficos y tablas\n               sjmisc, # Descriptivos\n               kableExtra, # Tablas\n               sjstats,\n               haven,\n               ggplot2,\n               ggpubr,\n               dplyr,\n               descr\n               )\n\noptions(scipen = 999) # para desactivar notación científica\n\n\n# Cargar datos\n\nload(\"input/data-proc/casen2022.Rdata\")\n\n# Asignar NAs a los valores -99 y -88\nproc_casen &lt;- casen2022 %&gt;%\n  mutate(across(everything(), ~ na_if(., -88))) %&gt;%  \n  mutate(across(everything(), ~ na_if(., -99)))\n\n# Variable trabajar en PYME\nproc_casen &lt;- proc_casen %&gt;% mutate(\n  pyme = case_when(\n    tamaño_empresa &lt;= 5 ~ 1,\n    tamaño_empresa == 6 ~ 0,\n  )\n)\n\n# Variable FORMALIDAD\nproc_casen &lt;- proc_casen %&gt;% mutate(\n  formalidad = case_when(\n    contrato &lt;= 2 ~ 1,\n    contrato == 3 ~ 0\n  )\n)\n\nproc_casen &lt;- proc_casen %&gt;% mutate(\n  pertenece_sindicato = case_when(\n    pertenece_sindicato == 1 ~ 1,\n    pertenece_sindicato == 2 ~ 0,\n  )\n)\n\n# proc_casen &lt;- proc_casen %&gt;%\n#   mutate(across(everything(), ~ as.numeric(as.character(.x))))\n\nsave(proc_casen,\n     file = \"input/data-proc/proc_casen.Rdata\") #guardar objeto",
+    "crumbs": [
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Metodología</span>"
+    ]
+  },
+  {
+    "objectID": "03-metodologia.html#variables",
+    "href": "03-metodologia.html#variables",
+    "title": "4  Metodología",
+    "section": "4.2 Variables",
+    "text": "4.2 Variables\nDetalle de las variables incluidas en el análisis, así como escalas de medición.\n\n# Crear tabla descriptiva\nproc_casen %&gt;%\n  select(pertenece_sindicato, pyme, tamaño_empresa, salario, formalidad) %&gt;%\n  sjmisc::descr(show = c(\"range\", \"mean\", \"sd\", \"NA.prc\", \"n\", \"md\")) %&gt;% \n  kable() %&gt;% \n  kable_classic()\n\n\n\n\n\nvar\nn\nNA.prc\nmean\nsd\nmd\nrange\n\n\n\n\n2\npertenece_sindicato\n80298\n6.314316\n0.1191811\n0.3240034\n0\n1 (0-1)\n\n\n3\npyme\n81122\n5.352934\n0.7786914\n0.4151304\n1\n1 (0-1)\n\n\n5\ntamaño_empresa\n81122\n5.352934\n3.5025887\n1.8966399\n4\n5 (1-6)\n\n\n4\nsalario\n59723\n30.319683\n660917.9807612\n645640.4990393\n490000\n25000000 (0-25000000)\n\n\n1\nformalidad\n60821\n29.038619\n0.8599332\n0.3470591\n1\n1 (0-1)\n\n\n\n\n\n\n\nTras seleccionar las variables, se realizó una limpieza de la base de datos. Se re nombraron las variables a manera de facilitar el uso. Las preguntas correspondientes a las variables tamaño_empresa, contrato y pertenece_sindicato solo se respondían si la variable ocupado era igual 1, por lo que se filtraron todos los casos que no cumplían esa condición. Posterior a esto, todos los valores -99 y -88 fueron re-codificados como NAs. 1\nSe re-codificaron las siguientes variables\n\ntamaño_empresa fue re-codificada como pyme para que los casos que tuvieran valores menores o iguales a 5 (correspondiente a la respuesta “De 50 a 199 personas”) quedaran con valor 1 y quienes tengan valor 6 (correspondiente a la respuesta “200 y más personas”) quedaran con valor 0.\ncontrato fue re-codificada como formalidad, para que los casos con valores 1 y 2 (contrato firmado y contrato sin firmar, respectivamente) pasaran a ser 1 y los casos con valor 3 (no tiene contrato) pasara a ser 0\n\nRespecto al porcentaje de NAs de la variable: la respuesta o no de la pregunta asociada a la variable depende de que los entrevistados sean trabajadores asalariados1. Al filtrar los datos segun esto la cantidad de NA se reduce significativamente:\n\n\nproc_casen %&gt;%\n  filter(trabajo_como &gt;= 3 & trabajo_como &lt;= 8) %&gt;%\n  sjmisc::frq(formalidad) %&gt;% as.data.frame() %&gt;%\n  kable() %&gt;% kable_classic()\n\n\n\n\nvariable\nval\nlabel\nfrq\nraw.prc\ncum.prc\n\n\n\n\nformalidad\n0\n&lt;none&gt;\n8519\n13.88\n14.01\n\n\nformalidad\n1\n&lt;none&gt;\n52302\n85.23\n100.00\n\n\nformalidad\nNA\nNA\n542\n0.88\nNA\n\n\n\n\n\n\n\npertenece_sindicato fue re-codificada para cambiar los valores 1 y 2 (pertenecer o no a un sindicato, respectivamente) por 1 y 0 respectivamente.\n\nA partir de la tabla, se puede decir que:\nRespecto a las variables tamaño_empresa y pyme, da cuenta que alrededor de la mitad de quienes respondieron trabajan en una empresa con menos de 200 empleados, es decir en una PYME.\nRespecto a la variable formalidad, se puede concluir que la mayoría de quienes respondieron se encuentra en un trabajo formal, siendo alrededor de un 86%.\nRespecto a la variable pertenece_sindicato, se da cuenta que la mayoría no pertenece a un sindicato, los afiliados siendo tan solo un 11.6%.\n\n\n\nEs decir son Empleado(a) u obrero(a) del sector público, Empleado(a) u obrero(a) de empresas públicas, Empleado(a) u obrero(a) del sector privado, Servicio doméstico puertas adentro, Servicio doméstico puertas afuera o FF.AA. y del Orden↩︎",
+    "crumbs": [
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Metodología</span>"
+    ]
+  },
+  {
+    "objectID": "03-metodologia.html#métodos",
+    "href": "03-metodologia.html#métodos",
+    "title": "4  Metodología",
+    "section": "4.3 Métodos",
+    "text": "4.3 Métodos\nBreve descripción de los procedimientos aplicados para procesar y analizar la información.",
+    "crumbs": [
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Metodología</span>"
+    ]
+  },
+  {
+    "objectID": "00-prefacio.html",
+    "href": "00-prefacio.html",
+    "title": "Prefacio",
+    "section": "",
+    "text": "Agradecimientos opcionales, dedicatorias, notas sobre financiamiento, etc.",
+    "crumbs": [
+      "Prefacio"
+    ]
+  },
+  {
+    "objectID": "01-introduccion.html",
+    "href": "01-introduccion.html",
+    "title": "2  Introducción",
+    "section": "",
+    "text": "Motivación, preguntas de investigación, Objetivo general y específicos, contribución esperada, estructura del documento.",
+    "crumbs": [
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Introducción</span>"
+    ]
+  },
+  {
+    "objectID": "02-marco-teorico.html",
+    "href": "02-marco-teorico.html",
+    "title": "3  Antecedentes conceptuales y empíricos",
+    "section": "",
+    "text": "3.1 Marco conceptual\nSintetiza la literatura relevante. Usa referencias como Desmond & Wilmers (2019).\nLorem ipsum dolor sit amet, consectetur adipiscing elit. Integer at nulla a ligula volutpat dictum. Sed dictum hendrerit augue, vitae efficitur nisl hendrerit nec. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer at nulla a ligula volutpat dictum. Sed dictum hendrerit augue, vitae efficitur nisl hendrerit nec. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer at nulla a ligula volutpat dictum. Sed dictum hendrerit augue, vitae efficitur nisl hendrerit nec. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer at nulla a ligula volutpat dictum. Sed dictum hendrerit augue, vitae efficitur nisl hendrerit nec.\nLorem ipsum dolor sit amet, consectetur adipiscing elit. Integer at nulla a ligula volutpat dictum. Sed dictum hendrerit augue, vitae efficitur nisl hendrerit nec. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer at nulla a ligula volutpat dictum. Sed dictum hendrerit augue, vitae efficitur nisl hendrerit nec. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer at nulla a ligula volutpat dictum. Sed dictum hendrerit augue, vitae efficitur nisl hendrerit nec. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer at nulla a ligula volutpat dictum. Sed dictum hendrerit augue, vitae efficitur nisl hendrerit nec.\nLorem ipsum dolor sit amet, consectetur adipiscing elit. Integer at nulla a ligula volutpat dictum. Sed dictum hendrerit augue, vitae efficitur nisl hendrerit nec. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer at nulla a ligula volutpat dictum. Sed dictum hendrerit augue, vitae efficitur nisl hendrerit nec. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer at nulla a ligula volutpat dictum. Sed dictum hendrerit augue, vitae efficitur nisl hendrerit nec. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer at nulla a ligula volutpat dictum. Sed dictum hendrerit augue, vitae efficitur nisl hendrerit nec.",
+    "crumbs": [
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Antecedentes conceptuales y empíricos</span>"
+    ]
+  },
+  {
+    "objectID": "02-marco-teorico.html#marco-conceptual",
+    "href": "02-marco-teorico.html#marco-conceptual",
+    "title": "3  Antecedentes conceptuales y empíricos",
+    "section": "",
+    "text": "3.1.1 Ejemplos APA 7\nSegún Desmond & Wilmers (2019), los patrones de segregación residencial configuran los límites de oportunidad urbana y permiten introducir la sintaxis de cita narrativa dentro del flujo del texto.\nLos matices culturales del gusto pueden reforzar desigualdades cuando se institucionalizan en jerarquías de prestigio académico (Bourdieu, 2012, p. 35), lo que ilustra la cita parentética con número de página.\nPara contrastar hallazgos se pueden reunir múltiples referencias en un mismo paréntesis analítico (Desmond & Wilmers, 2019; Xie, 2017), destacando cómo distintos diseños metodológicos convergen en un mecanismo causal compartido.\n\nLas aspiraciones colectivas se negocian constantemente en espacios cotidianos que traducen capital cultural en prácticas concretas, reescribiendo así el mapa de posibilidades percibidas por cada agente social en contextos urbanos desiguales. Este entramado simbólico orienta aspiraciones futuras y limita adaptaciones comunitarias. (Bourdieu, 2012, p. 87)",
+    "crumbs": [
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Antecedentes conceptuales y empíricos</span>"
+    ]
+  },
+  {
+    "objectID": "02-marco-teorico.html#resumen-del-capítulo",
+    "href": "02-marco-teorico.html#resumen-del-capítulo",
+    "title": "3  Antecedentes conceptuales y empíricos",
+    "section": "3.2 Resumen del capítulo",
+    "text": "3.2 Resumen del capítulo\n\nEste capítulo ofreció una revisión breve de los conceptos fundamentales y estableció proposiciones para guiar el análisis empírico posterior.\n\n\n\n\n\n\n\nBourdieu, P. (2012). La distinción: Criterio y bases sociales del gusto. Taurus.\n\n\nDesmond, M., & Wilmers, N. (2019). The Racialized Geography of Housing. American Journal of Sociology.\n\n\nXie, Y. (2017). bookdown: Authoring Books and Technical Documents with R Markdown. Chapman; Hall/CRC.",
+    "crumbs": [
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Antecedentes conceptuales y empíricos</span>"
+    ]
+  },
+  {
+    "objectID": "04-resultados.html",
+    "href": "04-resultados.html",
+    "title": "5  Resultados",
+    "section": "",
+    "text": "5.1 Analisis descriptivo\nResumen de las estadisticas descriptivas clave y visualizaciones de apoyo.",
+    "crumbs": [
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Resultados</span>"
+    ]
+  },
+  {
+    "objectID": "04-resultados.html#modelos",
+    "href": "04-resultados.html#modelos",
+    "title": "5  Resultados",
+    "section": "5.2 Modelos",
+    "text": "5.2 Modelos\nPresentacion de los resultados de los modelos propuestos, con interpretacion y conclusiones.\n\n\n\n\n\n\nResumen comparativo de modelos\n\n\nResultados del modelo de regresiÃ³n\n\n\nCoeficientes estimados para mpg ~ wt + hp\n\n\nPredictor\nCoef.\nStd. Err.\nt-valor\np-valor\nSig.\nIC 95 %\n\n\n\n\nConstante\n37.227\n1.599\n23.28\n&lt;0.001\n***\n[33.957, 40.497]\n\n\nCapital social barrial\n-3.878\n0.633\n-6.13\n&lt;0.001\n***\n[-5.172, -2.584]\n\n\nPrecariedad laboral\n-0.032\n0.009\n-3.52\n0.001\n**\n[-0.050, -0.013]\n\n\nN\n32\n\n\n\n\n\n\n\nR^2\n0.827\n\n\n\n\n\n\n\nR^2 ajustado\n0.815\n\n\n\n\n\n\n\n\nNotas: *** p &lt; 0.001, ** p &lt; 0.01, * p &lt; 0.05, . p &lt; 0.10",
+    "crumbs": [
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Resultados</span>"
+    ]
+  },
+  {
+    "objectID": "05-discusion.html",
+    "href": "05-discusion.html",
+    "title": "6  Discusión",
+    "section": "",
+    "text": "Interpreta resultados, limitaciones y aportes.",
+    "crumbs": [
+      "<span class='chapter-number'>6</span>  <span class='chapter-title'>Discusión</span>"
+    ]
+  },
+  {
+    "objectID": "06-conclusiones.html",
+    "href": "06-conclusiones.html",
+    "title": "7  Conclusiones",
+    "section": "",
+    "text": "Síntesis y proyecciones futuras.",
+    "crumbs": [
+      "<span class='chapter-number'>7</span>  <span class='chapter-title'>Conclusiones</span>"
+    ]
+  },
+  {
+    "objectID": "references.html",
+    "href": "references.html",
+    "title": "Referencias",
+    "section": "",
+    "text": "Bourdieu, P. (2012). La distinción: Criterio y bases\nsociales del gusto. Taurus.\n\n\nDesmond, M., & Wilmers, N. (2019). The racialized geography of\nhousing. American Journal of Sociology.\n\n\nXie, Y. (2017). Bookdown: Authoring books and technical documents\nwith r markdown. Chapman; Hall/CRC.",
+    "crumbs": [
+      "<span class='chapter-number'>8</span>  <span class='chapter-title'>Referencias</span>"
+    ]
+  },
+  {
+    "objectID": "apendices/A-encuestas.html",
+    "href": "apendices/A-encuestas.html",
+    "title": "Anexo A - Instrumentos de levantamiento",
+    "section": "",
+    "text": "Incluye cuestionarios, guias de entrevista, etc.",
+    "crumbs": [
+      "Apéndices",
+      "<span class='chapter-number'>A</span>  <span class='chapter-title'>Instrumentos de levantamiento</span>"
+    ]
+  },
+  {
+    "objectID": "apendices/B-tablas.html",
+    "href": "apendices/B-tablas.html",
+    "title": "Anexo B - Tablas adicionales",
+    "section": "",
+    "text": "Tablas extendidas, tests de robustez, etc.",
+    "crumbs": [
+      "Apéndices",
+      "<span class='chapter-number'>B</span>  <span class='chapter-title'>Tablas adicionales</span>"
+    ]
+  },
+  {
+    "objectID": "04-resultados.html#analisis-bivariado",
+    "href": "04-resultados.html#analisis-bivariado",
+    "title": "5  Resultados",
+    "section": "5.2 Analisis bivariado",
+    "text": "5.2 Analisis bivariado\n\n5.2.1 Hipotesis 1: el tamaño de la empresa está relacionado por la posibilidad de sindicalización.\n\nt.test(proc_casen$tamaño_empresa ~ proc_casen$pertenece_sindicato, alternative = \"less\") %&gt;% report()\n\nEffect sizes were labelled following Cohen's (1988) recommendations.\n\nThe Welch Two Sample t-test testing the difference of proc_casen$tamaño_empresa\nby proc_casen$pertenece_sindicato (mean in group 0 = 3.29, mean in group 1 =\n5.13) suggests that the effect is negative, statistically significant, and\nlarge (difference = -1.84, 95% CI [-Inf, -1.81], t(15061.67) = -120.52, p &lt;\n.001; Cohen's d = -1.15, 95% CI [-Inf, -1.13])\n\n\n\nchiqtest &lt;- chisq.test(proc_casen$pyme, proc_casen$pertenece_sindicato)\nn &lt;- na.omit(proc_casen %&gt;% select(pyme, pertenece_sindicato)) %&gt;% nrow()\ncramer &lt;- sqrt(chiqtest$statistic / n*(2-1))\ncramer \n\nX-squared \n0.2954254 \n\nreport(chiqtest)\n\nEffect sizes were labelled following Funder's (2019) recommendations.\n\nThe Pearson's Chi-squared test with Yates' continuity correction of\nindependence between proc_casen$pyme and proc_casen$pertenece_sindicato\nsuggests that the effect is statistically significant, and medium (chi2 =\n6649.92, p &lt; .001; Adjusted Cramer's v = 0.30, 95% CI [0.29, 1.00])\n\n\n\nmatriz &lt;- proc_casen %&gt;% select(pyme, pertenece_sindicato) # creamos matriz con var de interes\n\ntetrachoric(matriz, na.rm = T)\n\nCall: tetrachoric(x = matriz, na.rm = T)\ntetrachoric correlation \n                    pyme  prtn_\npyme                 1.00      \npertenece_sindicato -0.53  1.00\n\n with tau of \n               pyme pertenece_sindicato \n              -0.77                1.18 \n\n\n\ncor.test(proc_casen$pertenece_sindicato, proc_casen$tamaño_empresa)\n\n\n    Pearson's product-moment correlation\n\ndata:  proc_casen$pertenece_sindicato and proc_casen$tamaño_empresa\nt = 91.27, df = 76192, p-value &lt; 2.2e-16\nalternative hypothesis: true correlation is not equal to 0\n95 percent confidence interval:\n 0.3075229 0.3203244\nsample estimates:\n      cor \n0.3139379 \n\n\n\n\n5.2.2 Hipotesis 2:\n\ncor.test(proc_casen$pertenece_sindicato, proc_casen$salario)\n\n\n    Pearson's product-moment correlation\n\ndata:  proc_casen$pertenece_sindicato and proc_casen$salario\nt = 17.035, df = 58186, p-value &lt; 2.2e-16\nalternative hypothesis: true correlation is not equal to 0\n95 percent confidence interval:\n 0.06235408 0.07852381\nsample estimates:\n       cor \n0.07044357 \n\nt.test(proc_casen$salario ~ proc_casen$pertenece_sindicato, alternative = \"less\") %&gt;% report()\n\nEffect sizes were labelled following Cohen's (1988) recommendations.\n\nThe Welch Two Sample t-test testing the difference of proc_casen$salario by\nproc_casen$pertenece_sindicato (mean in group 0 = 6.38e+05, mean in group 1 =\n7.64e+05) suggests that the effect is negative, statistically significant, and\nsmall (difference = -1.26e+05, 95% CI [-Inf, -1.15e+05], t(13669.24) = -18.80,\np &lt; .001; Cohen's d = -0.21, 95% CI [-Inf, -0.19])\n\n\n\n\n5.2.3 hipotesis 3\n\nchiqtest &lt;- chisq.test(proc_casen$pyme, proc_casen$formalidad)\nn &lt;- na.omit(proc_casen %&gt;% select(pyme, formalidad)) %&gt;% nrow()\ncramer &lt;- sqrt(chiqtest$statistic / n*(2-1))\ncramer \n\nX-squared \n0.1864342 \n\nreport(chiqtest)\n\nEffect sizes were labelled following Funder's (2019) recommendations.\n\nThe Pearson's Chi-squared test with Yates' continuity correction of\nindependence between proc_casen$pyme and proc_casen$formalidad suggests that\nthe effect is statistically significant, and small (chi2 = 1974.90, p &lt; .001;\nAdjusted Cramer's v = 0.19, 95% CI [0.18, 1.00])\n\ncor.test(proc_casen$pertenece_sindicato, proc_casen$formalidad)\n\n\n    Pearson's product-moment correlation\n\ndata:  proc_casen$pertenece_sindicato and proc_casen$formalidad\nt = 38.17, df = 59151, p-value &lt; 2.2e-16\nalternative hypothesis: true correlation is not equal to 0\n95 percent confidence interval:\n 0.1471714 0.1629013\nsample estimates:\n      cor \n0.1550462",
+    "crumbs": [
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Resultados</span>"
+    ]
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Las PYMEs y la fragmentación del trabajo en Chile",
+    "section": "",
+    "text": "Código\nElena Yáñez Rodriguez\nBenjamín Beroíza\n\n22 de noviembre de 2025\n\n\n\n\nPalabras clave: sociología, educación, Chile\n\nAbstract\nResumen en español (200-300). Expón propósito, método, resultados clave y conclusiones. Puede incluir citas como Xie (2017) y se actualizarán automáticamente.\n\n\n\n\n\n\nXie, Y. (2017). bookdown: Authoring Books and Technical Documents with R Markdown. Chapman; Hall/CRC.",
+    "crumbs": [
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>Indice</span>"
+    ]
+  }
+]
