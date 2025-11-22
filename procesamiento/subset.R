@@ -6,7 +6,7 @@ rm(list = ls()) # para limpiar el entorno de trabajo
 casen2022 <- read_sav("input/data-orig/Base de datos Casen 2022 SPSS_18 marzo 2024.sav") # llamar desde carpeta localcasen2022_subset <- casen2022 %>% 
 
 casen2022_subset <- casen2022 %>%  
-  select(y1, y2_dias, y2_hrs,sexo, edad, e6a_asiste, e6a_no_asiste, o1, o10, 
+  select(y1, y2_dias, y2_hrs,sexo, edad, e6a_asiste, e6a_no_asiste, o1, o2, o3, o10, 
          o12, o14, o15, o16, o19, o18, o25, o26a, o26b, o26c, o26d,)  # seleccionar variables y dar un nombre al subset (puede ser cualquier nombre)
 
 casen2022_subset <- casen2022_subset %>% 
@@ -21,9 +21,9 @@ rm(list = c('casen2022')) # quitar del environment para liberar espacio en la me
 casen2022 <- casen2022_subset
 rm(list = c('casen2022_subset')) # quitar del environment para liberar espacio en la memoria
 
-# Filtrar filas que cumplen una condición
+# filtrar por ocupados
 casen2022 <- casen2022 %>%
-  filter(ocupado == 1)
+  filter(ocupado == 1 | o2 == 1 | o3 == 1)
 
 save(casen2022, 
      file = "input/data-proc/casen2022.Rdata") #guardar objeto

@@ -1,27 +1,77 @@
 ---
 title: "Resultados"
 ---
+
+```{r}
+# cargar datos
+load("input/data-proc/proc_casen.Rdata")
+
+# cargar librerías
+pacman::p_load(tidyverse, # Manipulación datos
+               sjPlot, # Gráficos y tablas
+               sjmisc, # Descriptivos
+               corrplot, # Correlaciones
+               psych, # Test estadísticos
+               kableExtra, # Tablas
+               sjstats,
+               haven,
+               ggplot2,
+               ggpubr,
+               gtsummary,
+               dplyr,
+               stargazer,
+               descr,
+               table1,
+               report)
+```
+
 ## Analisis descriptivo
 
 Resumen de las estadisticas descriptivas clave y visualizaciones de apoyo.
-```{r grafico-ejemplo}
-#| fig-cap: "Relacion X^2"
-#| warning: false
-
-```
 
 ## Analisis bivariado
 
+### Hipotesis 1: el tamaño de la empresa está relacionado por la posibilidad de sindicalización.
 
 ```{r}
-# cor.test(proc_casen$tamaño_empresa, proc_casen$formalidad)
-# 
-# t.test(proc_casen$salario, proc_casen$pertenece_sindicato)
-
-chiqtest <- chisq.test(proc_casen$pyme, proc_casen$salario)
-n <- na.omit(proc_casen %>% select(tamaño_empresa, trabajo_como)) %>% nrow()
-cramer <- sqrt(chiqtest$statistic / n*(2-1))
-cramer
+t.test(proc_casen$tamaño_empresa ~ proc_casen$pertenece_sindicato, alternative = "less") %>% report()
 ```
 
+```{r}
+chiqtest <- chisq.test(proc_casen$pyme, proc_casen$pertenece_sindicato)
+n <- na.omit(proc_casen %>% select(pyme, pertenece_sindicato)) %>% nrow()
+cramer <- sqrt(chiqtest$statistic / n*(2-1))
+cramer 
+report(chiqtest)
 
+```
+
+```{r}
+matriz <- proc_casen %>% select(pyme, pertenece_sindicato) # creamos matriz con var de interes
+
+tetrachoric(matriz, na.rm = T)
+```
+
+```{r}
+cor.test(proc_casen$pertenece_sindicato, proc_casen$tamaño_empresa)
+```
+
+### Hipotesis 2:
+
+```{r}
+cor.test(proc_casen$pertenece_sindicato, proc_casen$salario)
+
+t.test(proc_casen$salario ~ proc_casen$pertenece_sindicato, alternative = "less") %>% report()
+```
+
+### hipotesis 3
+
+```{r}
+chiqtest <- chisq.test(proc_casen$pyme, proc_casen$formalidad)
+n <- na.omit(proc_casen %>% select(pyme, formalidad)) %>% nrow()
+cramer <- sqrt(chiqtest$statistic / n*(2-1))
+cramer 
+report(chiqtest)
+
+cor.test(proc_casen$pertenece_sindicato, proc_casen$formalidad)
+```

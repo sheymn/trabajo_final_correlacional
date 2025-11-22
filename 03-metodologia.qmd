@@ -14,18 +14,14 @@ title: "Metodología"
 pacman::p_load(tidyverse, # Manipulación datos
                sjPlot, # Gráficos y tablas
                sjmisc, # Descriptivos
-               corrplot, # Correlaciones
-               psych, # Test estadísticos
                kableExtra, # Tablas
                sjstats,
                haven,
                ggplot2,
                ggpubr,
-               gtsummary,
                dplyr,
-               stargazer,
-               descr,
-               table1)
+               descr
+               )
 
 options(scipen = 999) # para desactivar notación científica
 ```
@@ -65,32 +61,53 @@ proc_casen <- proc_casen %>% mutate(
 
 proc_casen <- proc_casen %>%
   mutate(across(everything(), ~ as.numeric(as.character(.x))))
+
+save(proc_casen, 
+     file = "input/data-proc/proc_casen.Rdata") #guardar objeto
 ```
 
 ## Variables
 
 Detalle de las variables incluidas en el análisis, así como escalas de medición.
 
-```{r}
+```{r tabla-desc}
 # Crear tabla descriptiva
 proc_casen %>%
-  select(pertenece_sindicato, pyme, pertenece_sindicato, salario, formalidad) %>%
+  select(pertenece_sindicato, pyme, tamaño_empresa, salario, formalidad) %>%
   sjmisc::descr(show = c("range", "mean", "sd", "NA.prc", "n", "md")) %>% 
   kable() %>% 
   kable_classic()
 ```
 
-Tras seleccionar las variables, se realizó una limpieza de la base de datos. Se re nombraron las variables a manera de facilitar el uso. Las preguntas correspondientes a las variables `tamaño_empresa`, `contrato` y `pertenece_sindicato` solo se respondían si la variable `ocupado` era igual 1, por lo que se filtraron todos los casos que no cumplían esa condición. Posterior a esto, todos los valores -99 y -88 fueron recodificados como NAs. 1
+Tras seleccionar las variables, se realizó una limpieza de la base de datos. Se re nombraron las variables a manera de facilitar el uso. Las preguntas correspondientes a las variables `tamaño_empresa`, `contrato` y `pertenece_sindicato` solo se respondían si la variable `ocupado` era igual 1, por lo que se filtraron todos los casos que no cumplían esa condición. Posterior a esto, todos los valores -99 y -88 fueron re-codificados como NAs. 1
 
 Se re-codificaron las siguientes variables
 
--   `tamaño_empresa` fue re-codificada como `pyme` para que los casos que tuvieran valores menores o iguales a 5 (correspondiente a la respuesta "*De 50 a 199 personas"*) quedaran con valor 1 y quienes tengan valor 6 (correspondiente a la respuesta "*200 y más personas*") quedaran con valor 0.
+-   `tamaño_empresa` fue re-codificada como `pyme` para que los casos que tuvieran valores menores o iguales a 5 (correspondiente a la respuesta "*De 50 a 199 personas"*) quedaran con valor 1 y quienes tengan valor 6 (correspondiente a la respuesta *"200 y más personas"*) quedaran con valor 0.
 
 -   `contrato` fue re-codificada como `formalidad`, para que los casos con valores 1 y 2 (contrato firmado y contrato sin firmar, respectivamente) pasaran a ser 1 y los casos con valor 3 (no tiene contrato) pasara a ser 0
 
+    -   Respecto al porcentaje de NAs de la variable: la respuesta o no de la pregunta asociada a la variable depende de que los entrevistados sean trabajadores asalariados[^03-metodologia-1]. Al filtrar los datos segun esto la cantidad de NA se reduce significativamente:
+
+    ```{r}
+    proc_casen %>%
+      filter(trabajo_como >= 3 & trabajo_como <= 8) %>%
+      sjmisc::frq(formalidad) %>% as.data.frame() %>%
+      kable() %>% kable_classic()
+
+    ```
+
 -   `pertenece_sindicato` fue re-codificada para cambiar los valores 1 y 2 (pertenecer o no a un sindicato, respectivamente) por 1 y 0 respectivamente.
 
-### Variable PYME
+[^03-metodologia-1]: Es decir son Empleado(a) u obrero(a) del sector público, Empleado(a) u obrero(a) de empresas públicas, Empleado(a) u obrero(a) del sector privado, Servicio doméstico puertas adentro, Servicio doméstico puertas afuera o FF.AA. y del Orden
+
+A partir de la tabla, se puede decir que:
+
+Respecto a las variables `tamaño_empresa` y `pyme`, da cuenta que alrededor de la mitad de quienes respondieron trabajan en una empresa con menos de 200 empleados, es decir en una PYME.
+
+Respecto a la variable `formalidad`, se puede concluir que la mayoría de quienes respondieron se encuentra en un trabajo formal, siendo alrededor de un 86%.
+
+Respecto a la variable `pertenece_sindicato`, se da cuenta que la mayoría no pertenece a un sindicato, los afiliados siendo tan solo un 11.6%.
 
 ## Métodos
 
