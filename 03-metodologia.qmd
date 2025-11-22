@@ -64,6 +64,7 @@ proc_casen <- proc_casen %>% mutate(
 
 save(proc_casen,
      file = "input/data-proc/proc_casen.Rdata") #guardar objeto
+
 ```
 
 ## Variables
