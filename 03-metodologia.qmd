@@ -59,10 +59,10 @@ proc_casen <- proc_casen %>% mutate(
   )
 )
 
-proc_casen <- proc_casen %>%
-  mutate(across(everything(), ~ as.numeric(as.character(.x))))
+# proc_casen <- proc_casen %>%
+#   mutate(across(everything(), ~ as.numeric(as.character(.x))))
 
-save(proc_casen, 
+save(proc_casen,
      file = "input/data-proc/proc_casen.Rdata") #guardar objeto
 ```
 
@@ -75,8 +75,7 @@ Detalle de las variables incluidas en el análisis, así como escalas de medici�
 proc_casen %>%
   select(pertenece_sindicato, pyme, tamaño_empresa, salario, formalidad) %>%
   sjmisc::descr(show = c("range", "mean", "sd", "NA.prc", "n", "md")) %>% 
-  kable() %>% 
-  kable_classic()
+  kable(format = "markdown")
 ```
 
 Tras seleccionar las variables, se realizó una limpieza de la base de datos. Se re nombraron las variables a manera de facilitar el uso. Las preguntas correspondientes a las variables `tamaño_empresa`, `contrato` y `pertenece_sindicato` solo se respondían si la variable `ocupado` era igual 1, por lo que se filtraron todos los casos que no cumplían esa condición. Posterior a esto, todos los valores -99 y -88 fueron re-codificados como NAs. 1
