@@ -57,7 +57,8 @@ ggplot(promedios, aes(y = reorder(pertenece_sindicato, promedio_tamaño),
   theme_light() +
   theme(axis.text.y = element_text(size = 11, face = "bold"),
         plot.title = element_text(size = 14, face = "bold", hjust = 0.5)) +
-  scale_x_continuous(expand = expansion(mult = c(0, 0.1))) # Espacio para el texto
+  scale_x_continuous(expand = expansion(mult = c(0, 0.1))) + # Espacio para el texto
+  scale_y_discrete(labels = c("1" = "Sí", "0" = "No"))
 
 
 ```
@@ -97,6 +98,28 @@ cor.test(proc_casen$pertenece_sindicato, proc_casen$tamaño_empresa)
 cor.test(proc_casen$pertenece_sindicato, proc_casen$salario)
 
 t.test(proc_casen$salario ~ proc_casen$pertenece_sindicato, alternative = "less") %>% report()
+
+
+ggplot(proc_casen, aes(x = salario, fill = pertenece_sindicato)) +
+  geom_density(alpha = 0.6, color = NA) +
+  scale_fill_manual(values = c("#E74C3C", "#3498DB"),
+                    labels = c("No", "Sí"),
+                    name = "Pertenece a\nsindicato") +
+  labs(title = "Distribución de densidad de salarios",
+       x = "Salario", y = "Densidad") +
+  theme_minimal()
+
+
+ggplot(proc_casen, aes(x = salario, fill = pertenece_sindicato)) +
+  geom_histogram(position = "identity", alpha = 0.7, bins = 30) +
+  scale_fill_manual(values = c("#E74C3C", "#3498DB"),
+                    labels = c("No", "Sí"),
+                    name = "Pertenece a\nsindicato") +
+  labs(title = "Distribución de salarios",
+       x = "Salario", y = "Frecuencia") +
+  theme_minimal()
+
+proc_casen %>% filter(salario > 2000000)  %>% plot(salario)
 ```
 
 ### hipotesis 3
