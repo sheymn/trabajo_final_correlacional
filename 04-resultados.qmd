@@ -40,7 +40,7 @@ sjstats::phi(table(proc_casen$pyme, proc_casen$pertenece_sindicato))
 
 Hay una asociación estadísticamente significativa (p \< .001) entre trabajar en una PYME y la pertenencia a un sindicato. Por tanto, con un 95% de confianza se puede rechazar la hipótesis de no asociación entre variables, existiendo evidencia a favor de una asociación significativa entre la pertenencia a un sindicato y trabajar en una PYME.
 
-```{r}
+```{r tabla-sindicato-tamaño}
 promedios <- proc_casen %>%
   filter(!is.na(pertenece_sindicato)) %>%  # Excluir NAs
   group_by(pertenece_sindicato) %>%
