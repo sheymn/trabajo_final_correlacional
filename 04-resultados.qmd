@@ -23,16 +23,22 @@ pacman::p_load(tidyverse, # Manipulación datos
                descr,
                table1,
                report)
+
+options(scipen = 999) # para desactivar notacion cientifica
 ```
 
-## Analisis descriptivo
-
-Resumen de las estadisticas descriptivas clave y visualizaciones de apoyo.
-
-### Variable PYME
+### Hipotesis 1: el tamaño de la empresa está relacionado por la posibilidad de sindicalización.
 
 ```{r}
+chiqtest <- chisq.test(proc_casen$pyme, proc_casen$pertenece_sindicato)
+report(chiqtest)
+chiqtest
+sjstats::phi(table(proc_casen$pyme, proc_casen$pertenece_sindicato))
+```
 
+Hay una asociación estadísticamente significativa (p \< .001) entre trabajar en una PYME y la pertenencia a un sindicato. Por tanto, con un 95% de confianza se puede rechazar la hipótesis de no asociación entre variables, existiendo evidencia a favor de una asociación significativa entre la pertenencia a un sindicato y trabajar en una PYME.
+
+```{r}
 promedios <- proc_casen %>%
   filter(!is.na(pertenece_sindicato)) %>%  # Excluir NAs
   group_by(pertenece_sindicato) %>%
@@ -59,40 +65,18 @@ ggplot(promedios, aes(y = reorder(pertenece_sindicato, promedio_tamaño),
         plot.title = element_text(size = 14, face = "bold", hjust = 0.5)) +
   scale_x_continuous(expand = expansion(mult = c(0, 0.1))) + # Espacio para el texto
   scale_y_discrete(labels = c("1" = "Sí", "0" = "No"))
-
-
 ```
 
-
-
-## Analisis bivariado
-
-### Hipotesis 1: el tamaño de la empresa está relacionado por la posibilidad de sindicalización.
+Al considerar la variable original de tamaño de empresa, de carácter ordinal, nos permite realizar una correlación punto biserial entre ambas variables:
 
 ```{r}
-t.test(proc_casen$tamaño_empresa ~ proc_casen$pertenece_sindicato, alternative = "less") %>% report()
+# Realizar correalacion punto biserial
+cor.test(proc_casen$pertenece_sindicato, proc_casen$tamaño_empresa) %>% report()
 ```
 
-```{r}
-chiqtest <- chisq.test(proc_casen$pyme, proc_casen$pertenece_sindicato)
-n <- na.omit(proc_casen %>% select(pyme, pertenece_sindicato)) %>% nrow()
-cramer <- sqrt(chiqtest$statistic / n*(2-1))
-cramer 
-report(chiqtest)
+La asociación entre la pertenencia a un sindicato y el tamaño de empresa es positiva, moderada y estadísticamente significativa (r = 0.31, p \< .001). Por tanto, con un 95% de confianza se puede rechazar la hipótesis de no asociación entre variables, existiendo evidencia a favor de una asociación significativa, positiva y moderada entre la pertenencia a un sindicato y trabajar en una PYME.
 
-```
-
-```{r}
-matriz <- proc_casen %>% select(pyme, pertenece_sindicato) # creamos matriz con var de interes
-
-tetrachoric(matriz, na.rm = T)
-```
-
-```{r}
-cor.test(proc_casen$pertenece_sindicato, proc_casen$tamaño_empresa)
-```
-
-### Hipotesis 2:
+### Hipotesis 2: un nivel más alto de organización laboral se relaciona con mayores salarios.
 
 ```{r}
 cor.test(proc_casen$pertenece_sindicato, proc_casen$salario)
@@ -118,18 +102,17 @@ ggplot(proc_casen, aes(x = salario, fill = pertenece_sindicato)) +
   labs(title = "Distribución de salarios",
        x = "Salario", y = "Frecuencia") +
   theme_minimal()
-
-proc_casen %>% filter(salario > 2000000)  %>% plot(salario)
 ```
 
-### hipotesis 3
+### hipotesis 3: la formalidad es mayor en inserciones de empleo más estables
 
 ```{r}
 chiqtest <- chisq.test(proc_casen$pyme, proc_casen$formalidad)
+chiqtest
 n <- na.omit(proc_casen %>% select(pyme, formalidad)) %>% nrow()
 cramer <- sqrt(chiqtest$statistic / n*(2-1))
 cramer 
 report(chiqtest)
-
+33
 cor.test(proc_casen$pertenece_sindicato, proc_casen$formalidad)
 ```

@@ -9,9 +9,9 @@ project:
 
 book:
   title: Las PYMEs y la fragmentación del trabajo en Chile
-#  subtitle: Tesis, informes e investigaciones
+  subtitle: Trabajo final estadistica correlacional
   output-file: reportes-facso-plantilla
-  repo-url: https://github.com/KAravena/reportesfacsobook_template  #URL del repositorio del libro (cambia segun tu repo)
+  repo-url: https://github.com/sheymn/trabajo_final_correlacional  #URL del repositorio del libro (cambia segun tu repo)
   author:
     - Elena Yáñez Rodriguez
     - Benjamín Beroíza

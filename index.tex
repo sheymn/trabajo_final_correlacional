@@ -392,8 +392,15 @@ tablas}
 
 
 \title{Las PYMEs y la fragmentación del trabajo en Chile}
+\usepackage{etoolbox}
+\makeatletter
+\providecommand{\subtitle}[1]{% add subtitle to \maketitle
+  \apptocmd{\@title}{\par {\large #1 \par}}{}{}
+}
+\makeatother
+\subtitle{Trabajo final estadistica correlacional}
 \author{Elena Yáñez Rodriguez \and Benjamín Beroíza}
-\date{22 de noviembre de 2025}
+\date{23 de noviembre de 2025}
 
 \begin{document}
 \frontmatter
@@ -530,8 +537,7 @@ etc.
 
 \chapter{Introducción}\label{introducciuxf3n}
 
-Motivación, preguntas de investigación, Objetivo general y específicos,
-contribución esperada, estructura del documento.
+\section{}\label{section}
 
 \bookmarksetup{startatroot}
 
@@ -616,12 +622,25 @@ y estableció proposiciones para guiar el análisis empírico posterior.
 
 \section{Datos}\label{datos}
 
-\subsection{Preparación de datos}\label{preparaciuxf3n-de-datos}
+Para llevar a cabo la presente investigación, se utilizó la Base de
+Datos de la Encuesta de Caracterización Socioeconómica Nacional (CASEN)
+del año 2022,~desarrollada por el Ministerio de Desarrollo Social y
+Familia. La CASEN es la principal encuesta de hogares del país y tiene
+como objetivo medir las condiciones de vida de la población, a través de
+dimensiones como ingresos, trabajo, educación, salud, vivienda,
+participación social, seguridad social y género, entre otras. Su
+propósito central es generar información oficial y comparable que
+permita evaluar el impacto de las políticas públicas y caracterizar las
+brechas de desigualdad existentes en Chile. Para este trabajo, se
+utilizó la dimensión de trabajo, el Módulo O, donde variables
+relacionadas a los conceptos de organización laboral, tamaño de empresa,
+salario y formalidad.
+
+\section{Variables}\label{variables}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\CommentTok{\# Carga paquetes}
-
+\CommentTok{\# Cargar paquetes}
 \NormalTok{pacman}\SpecialCharTok{::}\FunctionTok{p\_load}\NormalTok{(tidyverse, }\CommentTok{\# Manipulación datos}
 \NormalTok{               sjPlot, }\CommentTok{\# Gráficos y tablas}
 \NormalTok{               sjmisc, }\CommentTok{\# Descriptivos}
@@ -640,7 +659,7 @@ y estableció proposiciones para guiar el análisis empírico posterior.
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\CommentTok{\# Cargar datos}
+\CommentTok{\# Cargar datos y procesar los datos}
 
 \FunctionTok{load}\NormalTok{(}\StringTok{"input/data{-}proc/casen2022.Rdata"}\NormalTok{)}
 
@@ -680,11 +699,6 @@ y estableció proposiciones para guiar el análisis empírico posterior.
 \end{Highlighting}
 \end{Shaded}
 
-\section{Variables}\label{variables}
-
-Detalle de las variables incluidas en el análisis, así como escalas de
-medición.
-
 \begin{Shaded}
 \begin{Highlighting}[]
 \CommentTok{\# Crear tabla descriptiva}
@@ -708,13 +722,22 @@ medición.
 \bottomrule
 \end{longtable*}
 
+Se realizó un subset de la base de datos original de la CASEN 2022, en
+la que e seleccionaron las variables a utilizar y se filtraron por
+trabajadores ocupados, ya que todas las variables que nos interesaban se
+seguían de que el encuestado estuviese ocupado. Para evitar cargar
+nuevamente la base de datos, el subset se realizo previamente y se cargo
+en este documento, el script para generarlo se encuentra alojado en la
+carpeta de procesamiento del proyecto.
+
 Tras seleccionar las variables, se realizó una limpieza de la base de
 datos. Se re nombraron las variables a manera de facilitar el uso. Las
 preguntas correspondientes a las variables \texttt{tamaño\_empresa},
 \texttt{contrato} y \texttt{pertenece\_sindicato} solo se respondían si
 la variable \texttt{ocupado} era igual 1, por lo que se filtraron todos
 los casos que no cumplían esa condición. Posterior a esto, todos los
-valores -99 y -88 fueron re-codificados como NAs. 1
+valores -99 y -88, correspondientes a \emph{``No sabe''} y \emph{``No
+responde''} respectivamente, fueron re-codificados como NAs.
 
 Se re-codificaron las siguientes variables
 
@@ -820,6 +843,41 @@ analizar la información.
 
 Resumen de las estadisticas descriptivas clave y visualizaciones de
 apoyo.
+
+\subsection{Variable PYME}\label{variable-pyme}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{promedios }\OtherTok{\textless{}{-}}\NormalTok{ proc\_casen }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{filter}\NormalTok{(}\SpecialCharTok{!}\FunctionTok{is.na}\NormalTok{(pertenece\_sindicato)) }\SpecialCharTok{\%\textgreater{}\%}  \CommentTok{\# Excluir NAs}
+  \FunctionTok{group\_by}\NormalTok{(pertenece\_sindicato) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{summarise}\NormalTok{(}
+\NormalTok{    promedio\_tamaño }\OtherTok{=} \FunctionTok{mean}\NormalTok{(tamaño\_empresa, }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{),}
+    \AttributeTok{n =} \FunctionTok{n}\NormalTok{()}
+\NormalTok{  ) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}
+    \AttributeTok{categoria =} \FunctionTok{ifelse}\NormalTok{(pertenece\_sindicato }\SpecialCharTok{==} \DecValTok{1}\NormalTok{, }\StringTok{"Sí pertenece"}\NormalTok{, }\StringTok{"No pertenece"}\NormalTok{),}
+    \AttributeTok{etiqueta =} \FunctionTok{paste0}\NormalTok{(}\FunctionTok{round}\NormalTok{(promedio\_tamaño, }\DecValTok{1}\NormalTok{), }\StringTok{"}\SpecialCharTok{\textbackslash{}n}\StringTok{(n="}\NormalTok{, n, }\StringTok{")"}\NormalTok{)}
+\NormalTok{  )}
+
+\FunctionTok{ggplot}\NormalTok{(promedios, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{y =} \FunctionTok{reorder}\NormalTok{(pertenece\_sindicato, promedio\_tamaño), }
+                      \AttributeTok{x =}\NormalTok{ promedio\_tamaño)) }\SpecialCharTok{+}
+  \FunctionTok{geom\_col}\NormalTok{(}\AttributeTok{fill =} \StringTok{"steelblue"}\NormalTok{, }\AttributeTok{width =} \FloatTok{0.7}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{geom\_text}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{label =}\NormalTok{ etiqueta), }
+        \AttributeTok{hjust =} \SpecialCharTok{{-}}\FloatTok{0.2}\NormalTok{, }\AttributeTok{size =} \DecValTok{3}\NormalTok{, }\AttributeTok{fontface =} \StringTok{"bold"}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{labs}\NormalTok{(}\AttributeTok{title =} \StringTok{"Promedio de tamaño de empresa por pertenencia a sindicato"}\NormalTok{,}
+       \AttributeTok{y =} \StringTok{"Pertenece a sindicato"}\NormalTok{,}
+       \AttributeTok{x =} \StringTok{"Tamaño promedio de empresa"}\NormalTok{,}
+       \AttributeTok{caption =} \StringTok{"Fuente: Elaboración propia en base a CASEN 2022"}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{theme\_light}\NormalTok{() }\SpecialCharTok{+}
+  \FunctionTok{theme}\NormalTok{(}\AttributeTok{axis.text.y =} \FunctionTok{element\_text}\NormalTok{(}\AttributeTok{size =} \DecValTok{11}\NormalTok{, }\AttributeTok{face =} \StringTok{"bold"}\NormalTok{),}
+        \AttributeTok{plot.title =} \FunctionTok{element\_text}\NormalTok{(}\AttributeTok{size =} \DecValTok{14}\NormalTok{, }\AttributeTok{face =} \StringTok{"bold"}\NormalTok{, }\AttributeTok{hjust =} \FloatTok{0.5}\NormalTok{)) }\SpecialCharTok{+}
+  \FunctionTok{scale\_x\_continuous}\NormalTok{(}\AttributeTok{expand =} \FunctionTok{expansion}\NormalTok{(}\AttributeTok{mult =} \FunctionTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{, }\FloatTok{0.1}\NormalTok{))) }\SpecialCharTok{+} \CommentTok{\# Espacio para el texto}
+  \FunctionTok{scale\_y\_discrete}\NormalTok{(}\AttributeTok{labels =} \FunctionTok{c}\NormalTok{(}\StringTok{"1"} \OtherTok{=} \StringTok{"Sí"}\NormalTok{, }\StringTok{"0"} \OtherTok{=} \StringTok{"No"}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\pandocbounded{\includegraphics[keepaspectratio]{04-resultados_files/figure-pdf/unnamed-chunk-2-1.pdf}}
 
 \section{Analisis bivariado}\label{analisis-bivariado}
 
@@ -949,6 +1007,36 @@ proc_casen$pertenece_sindicato (mean in group 0 = 6.38e+05, mean in group 1 =
 small (difference = -1.26e+05, 95% CI [-Inf, -1.15e+05], t(13669.24) = -18.80,
 p < .001; Cohen's d = -0.21, 95% CI [-Inf, -0.19])
 \end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{ggplot}\NormalTok{(proc\_casen, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ salario, }\AttributeTok{fill =}\NormalTok{ pertenece\_sindicato)) }\SpecialCharTok{+}
+  \FunctionTok{geom\_density}\NormalTok{(}\AttributeTok{alpha =} \FloatTok{0.6}\NormalTok{, }\AttributeTok{color =} \ConstantTok{NA}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{scale\_fill\_manual}\NormalTok{(}\AttributeTok{values =} \FunctionTok{c}\NormalTok{(}\StringTok{"\#E74C3C"}\NormalTok{, }\StringTok{"\#3498DB"}\NormalTok{),}
+                    \AttributeTok{labels =} \FunctionTok{c}\NormalTok{(}\StringTok{"No"}\NormalTok{, }\StringTok{"Sí"}\NormalTok{),}
+                    \AttributeTok{name =} \StringTok{"Pertenece a}\SpecialCharTok{\textbackslash{}n}\StringTok{sindicato"}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{labs}\NormalTok{(}\AttributeTok{title =} \StringTok{"Distribución de densidad de salarios"}\NormalTok{,}
+       \AttributeTok{x =} \StringTok{"Salario"}\NormalTok{, }\AttributeTok{y =} \StringTok{"Densidad"}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{theme\_minimal}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\pandocbounded{\includegraphics[keepaspectratio]{04-resultados_files/figure-pdf/unnamed-chunk-7-1.pdf}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{ggplot}\NormalTok{(proc\_casen, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ salario, }\AttributeTok{fill =}\NormalTok{ pertenece\_sindicato)) }\SpecialCharTok{+}
+  \FunctionTok{geom\_histogram}\NormalTok{(}\AttributeTok{position =} \StringTok{"identity"}\NormalTok{, }\AttributeTok{alpha =} \FloatTok{0.7}\NormalTok{, }\AttributeTok{bins =} \DecValTok{30}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{scale\_fill\_manual}\NormalTok{(}\AttributeTok{values =} \FunctionTok{c}\NormalTok{(}\StringTok{"\#E74C3C"}\NormalTok{, }\StringTok{"\#3498DB"}\NormalTok{),}
+                    \AttributeTok{labels =} \FunctionTok{c}\NormalTok{(}\StringTok{"No"}\NormalTok{, }\StringTok{"Sí"}\NormalTok{),}
+                    \AttributeTok{name =} \StringTok{"Pertenece a}\SpecialCharTok{\textbackslash{}n}\StringTok{sindicato"}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{labs}\NormalTok{(}\AttributeTok{title =} \StringTok{"Distribución de salarios"}\NormalTok{,}
+       \AttributeTok{x =} \StringTok{"Salario"}\NormalTok{, }\AttributeTok{y =} \StringTok{"Frecuencia"}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{theme\_minimal}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\pandocbounded{\includegraphics[keepaspectratio]{04-resultados_files/figure-pdf/unnamed-chunk-7-2.pdf}}
 
 \subsection{hipotesis 3}\label{hipotesis-3}
 
