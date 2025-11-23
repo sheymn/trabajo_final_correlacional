@@ -29,6 +29,41 @@ pacman::p_load(tidyverse, # Manipulación datos
 
 Resumen de las estadisticas descriptivas clave y visualizaciones de apoyo.
 
+### Variable PYME
+
+```{r}
+
+promedios <- proc_casen %>%
+  filter(!is.na(pertenece_sindicato)) %>%  # Excluir NAs
+  group_by(pertenece_sindicato) %>%
+  summarise(
+    promedio_tamaño = mean(tamaño_empresa, na.rm = TRUE),
+    n = n()
+  ) %>%
+  mutate(
+    categoria = ifelse(pertenece_sindicato == 1, "Sí pertenece", "No pertenece"),
+    etiqueta = paste0(round(promedio_tamaño, 1), "\n(n=", n, ")")
+  )
+
+ggplot(promedios, aes(y = reorder(pertenece_sindicato, promedio_tamaño), 
+                      x = promedio_tamaño)) +
+  geom_col(fill = "steelblue", width = 0.7) +
+  geom_text(aes(label = etiqueta), 
+        hjust = -0.2, size = 3, fontface = "bold") +
+  labs(title = "Promedio de tamaño de empresa por pertenencia a sindicato",
+       y = "Pertenece a sindicato",
+       x = "Tamaño promedio de empresa",
+       caption = "Fuente: Elaboración propia en base a CASEN 2022") +
+  theme_light() +
+  theme(axis.text.y = element_text(size = 11, face = "bold"),
+        plot.title = element_text(size = 14, face = "bold", hjust = 0.5)) +
+  scale_x_continuous(expand = expansion(mult = c(0, 0.1))) # Espacio para el texto
+
+
+```
+
+
+
 ## Analisis bivariado
 
 ### Hipotesis 1: el tamaño de la empresa está relacionado por la posibilidad de sindicalización.

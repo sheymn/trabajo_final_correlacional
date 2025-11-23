@@ -54,7 +54,7 @@
     "href": "01-introduccion.html",
     "title": "2  Introducción",
     "section": "",
-    "text": "Motivación, preguntas de investigación, Objetivo general y específicos, contribución esperada, estructura del documento.",
+    "text": "2.1",
     "crumbs": [
       "<span class='chapter-number'>2</span>  <span class='chapter-title'>Introducción</span>"
     ]
@@ -179,6 +179,16 @@
     "text": "Código\nElena Yáñez Rodriguez\nBenjamín Beroíza\n\n22 de noviembre de 2025\n\n\n\n\nPalabras clave: sociología, educación, Chile\n\nAbstract\nResumen en español (200-300). Expón propósito, método, resultados clave y conclusiones. Puede incluir citas como Xie (2017) y se actualizarán automáticamente.\n\n\n\n\n\n\nXie, Y. (2017). bookdown: Authoring Books and Technical Documents with R Markdown. Chapman; Hall/CRC.",
     "crumbs": [
       "<span class='chapter-number'>1</span>  <span class='chapter-title'>Indice</span>"
+    ]
+  },
+  {
+    "objectID": "04-resultados.html#analisis-descriptivo",
+    "href": "04-resultados.html#analisis-descriptivo",
+    "title": "5  Resultados",
+    "section": "",
+    "text": "5.1.1 Variable PYME\n\npromedios &lt;- proc_casen %&gt;%\n  filter(!is.na(pertenece_sindicato)) %&gt;%  # Excluir NAs\n  group_by(pertenece_sindicato) %&gt;%\n  summarise(\n    promedio_tamaño = mean(tamaño_empresa, na.rm = TRUE),\n    n = n()\n  ) %&gt;%\n  mutate(\n    categoria = ifelse(pertenece_sindicato == 1, \"Sí pertenece\", \"No pertenece\"),\n    etiqueta = paste0(round(promedio_tamaño, 1), \"\\n(n=\", n, \")\")\n  )\n\nggplot(promedios, aes(y = reorder(pertenece_sindicato, promedio_tamaño), \n                      x = promedio_tamaño)) +\n  geom_col(fill = \"steelblue\", width = 0.7) +\n  geom_text(aes(label = etiqueta), \n        hjust = -0.2, size = 3, fontface = \"bold\") +\n  labs(title = \"Promedio de tamaño de empresa por pertenencia a sindicato\",\n       y = \"Pertenece a sindicato\",\n       x = \"Tamaño promedio de empresa\",\n       caption = \"Fuente: Elaboración propia en base a CASEN 2022\") +\n  theme_light() +\n  theme(axis.text.y = element_text(size = 11, face = \"bold\"),\n        plot.title = element_text(size = 14, face = \"bold\", hjust = 0.5)) +\n  scale_x_continuous(expand = expansion(mult = c(0, 0.1))) # Espacio para el texto",
+    "crumbs": [
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Resultados</span>"
     ]
   }
 ]
