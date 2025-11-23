@@ -22,16 +22,18 @@ pacman::p_load(tidyverse, # Manipulación datos
                stargazer,
                descr,
                table1,
-               report)
+               report,
+               broom,
+               flextable,
+               rempsyc)
 
 options(scipen = 999) # para desactivar notacion cientifica
 ```
 
-### Hipotesis 1: el tamaño de la empresa está relacionado por la posibilidad de sindicalización.
+### Hipótesis 1: el tamaño de la empresa está relacionado con la posibilidad de sindicalización.
 
 ```{r}
 chiqtest <- chisq.test(proc_casen$pyme, proc_casen$pertenece_sindicato)
-report(chiqtest)
 chiqtest
 sjstats::phi(table(proc_casen$pyme, proc_casen$pertenece_sindicato))
 ```
@@ -71,40 +73,28 @@ Al considerar la variable original de tamaño de empresa, de carácter ordinal, 
 
 ```{r}
 # Realizar correalacion punto biserial
-cor.test(proc_casen$pertenece_sindicato, proc_casen$tamaño_empresa) %>% report()
+cor.test(proc_casen$pertenece_sindicato, proc_casen$tamaño_empresa)
 ```
 
-La asociación entre la pertenencia a un sindicato y el tamaño de empresa es positiva, moderada y estadísticamente significativa (r = 0.31, p \< .001). Por tanto, con un 95% de confianza se puede rechazar la hipótesis de no asociación entre variables, existiendo evidencia a favor de una asociación significativa, positiva y moderada entre la pertenencia a un sindicato y trabajar en una PYME.
+La asociación entre la pertenencia a un sindicato y el tamaño de empresa es positiva, moderada y estadísticamente significativa (r = 0.31, p < .001). Por tanto, con un 95% de confianza se puede rechazar la hipótesis de no asociación entre variables, existiendo evidencia a favor de una asociación significativa, positiva y moderada entre la pertenencia a un sindicato y trabajar en una PYME. Esto sugiere que la pertenencia a un sindicato esta asociada a mayores tamaños de empresa.
 
-### Hipotesis 2: un nivel más alto de organización laboral se relaciona con mayores salarios.
+### Hipótesis 2: Un mayor tamaño de empresa se relaciona con mayores salarios.
 
 ```{r}
-cor.test(proc_casen$pertenece_sindicato, proc_casen$salario)
-
-t.test(proc_casen$salario ~ proc_casen$pertenece_sindicato, alternative = "less") %>% report()
-
-
-ggplot(proc_casen, aes(x = salario, fill = pertenece_sindicato)) +
-  geom_density(alpha = 0.6, color = NA) +
-  scale_fill_manual(values = c("#E74C3C", "#3498DB"),
-                    labels = c("No", "Sí"),
-                    name = "Pertenece a\nsindicato") +
-  labs(title = "Distribución de densidad de salarios",
-       x = "Salario", y = "Densidad") +
-  theme_minimal()
-
-
-ggplot(proc_casen, aes(x = salario, fill = pertenece_sindicato)) +
-  geom_histogram(position = "identity", alpha = 0.7, bins = 30) +
-  scale_fill_manual(values = c("#E74C3C", "#3498DB"),
-                    labels = c("No", "Sí"),
-                    name = "Pertenece a\nsindicato") +
-  labs(title = "Distribución de salarios",
-       x = "Salario", y = "Frecuencia") +
-  theme_minimal()
+test_pyme_salario <- t.test(proc_casen$salario ~ proc_casen$pyme, conf.level = 0.95, alternative = "greater")
+stats.table <- tidy(test_pyme_salario, conf_int = T)
+nice_table(stats.table, broom = "t.test")
 ```
 
-### hipotesis 3: la formalidad es mayor en inserciones de empleo más estables
+La prueba t que evalúa la diferencia de medias entre el salario y el trabajo en PYME sugiere que el efecto es positivo y estadísticamente significativo (diferencia = 311,385.94, t = 43.11, p < .001). Por tanto, con un 95% de confianza, se puede rechazar la hipótesis nula sobre la existencia de evidencia a favor de nuestra hipótesis alternativa respecto a que el salario de los sindicalizados es en promedio mayor al de los no-sindicalizados, siendo con 95% de confianza  al menos $299,505.89 mayor a los de este ultimo.
+
+```{r}
+cor.test(proc_casen$tamaño_empresa, proc_casen$salario)
+```
+
+La asociación entre el tamaño de empresa y el salario es positiva, pequeña y estadísticamente significativa (r = 0.07, p < .001). Por tanto, con un 95% de confianza se puede rechazar la hipótesis de no asociación entre variables, existiendo evidencia a favor de una asociación significativa entre el tamaño de empresa y el salario. Esto sugiere que el trabajar en una empresa con mas empleados esta asociado a mayores salarios. 
+
+### hipotesis 3: la formalidad es mayor en empresas mas grandes 
 
 ```{r}
 chiqtest <- chisq.test(proc_casen$pyme, proc_casen$formalidad)
@@ -114,5 +104,5 @@ cramer <- sqrt(chiqtest$statistic / n*(2-1))
 cramer 
 report(chiqtest)
 33
-cor.test(proc_casen$pertenece_sindicato, proc_casen$formalidad)
+cor.test(proc_casen$tamaño_empresa, proc_casen$formalidad)
 ```
