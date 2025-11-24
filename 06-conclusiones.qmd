@@ -1,4 +1,56 @@
-﻿---
+---
 title: "Conclusiones"
 ---
-Síntesis y proyecciones futuras.
+
+El análisis de este trabajo entrega evidencia para afirmar que el tamaño
+empresarial constituye un elemento decisivo para caracterizar lugares
+diferenciados dentro del encadenamiento productivo del mercado laboral
+chileno. A partir de los datos de la CASEN 2022, los resultados muestran
+consistentemente que las empresas más pequeñas presentan peores
+condiciones para la organización laboral, salarios más bajos y una mayor
+probabilidad de informalidad en comparación con las empresas más
+grandes. Se presenta de esta forma, una estructura fragmentada del
+capital chileno, en el que las PYMEs ocupan un lugar necesariamente
+precario.
+
+Estos resultados dialogan con la literatura revisada. En primer lugar,
+contrastan con las tesis de Núñez et al. (2025), Ahumada y Sossdorf
+(2017), que suponen en las PYMEs un potencial dinamizador del empleo y
+la organización laboral y potencialmente superador del gran capital
+“rentista”; por el contrario, la evidencia empírica refuerza las
+lecturas que sitúan a las PYMEs como externalizadores de riesgos
+subordinadas dentro del encadenamiento productivo del gran capital
+(Ruiz, 2013). En este marco, la menor sindicalización, los salarios
+reducidos y los vínculos contractuales más frágiles pueden interpretarse
+como manifestaciones de esa posición necesaria, coherentes con
+modalidades de sobreexplotación orientadas a compensar su baja
+productividad, tal como han planteado Espro y Baez (2018).
+
+No obstante, el estudio presenta limitaciones relevantes. En primer
+lugar, se basa en análisis descriptivos, correlaciones y comparaciones
+de medias, lo que impide establecer relaciones causales, cuestión clave
+para nuestro análisis. En segundo lugar, la CASEN presenta altas tasas
+de no respuesta en preguntas sobre sindicalización y formalidad, y su
+aplicación mediante encuesta de hogares limita la precisión de ciertos
+indicadores laborales. Asimismo, variables claves como la composición
+orgánica del capital, su distribución por región, nivel educativo o
+antigüedad laboral y la dimensión sexo-genérica de la fuerza de trabajo
+no pudieron incorporarse, restringiendo la profundidad de nuestro
+estudio.
+
+Para futuros análisis sería pertinente utilizar modelos multivariados
+que permitan controlar simultáneamente varias variables y explorar
+relaciones causales más robustas. También sería valioso profundizar en
+comparaciones entre sectores económicos, estudiar diferencias de género
+dentro de la sindicalización y estimar modelos longitudinales que
+permitan observar cambios en el tiempo. De este modo, se podrían obtener
+conclusiones más completas sobre cómo la estructura empresarial y la
+organización colectiva influyen en la precariedad laboral en Chile.
+
+En síntesis, los hallazgos permiten sostener que lejos de ser un motor
+dinamizador del desarrollo económico chileno, las PYMEs reproducen la
+fragmentación productiva (Iñigo Carrera, 2013) y un rol funcional para
+tercerizar labores, subcontratar e impedir la organización laboral. La
+evidencia de este trabajo muestra que la fragmentación productiva
+produce que, en última instancia, las PYMEs sean un sujeto económico que
+perpetúa la precarización de los trabajadores.s

@@ -25,5 +25,4 @@ div[data-when-format="pdf"] { display: none !important; }
 
 # Abstract {.unnumbered}
 
-Resumen en español (200-300). Expón propósito, método, resultados clave y conclusiones.
-Puede incluir citas como @xie2017bookdown y se actualizarán automáticamente.
+Este trabajo analiza la relación entre el tamaño de empresa, la organización laboral, el salario y la formalidad, como elementos centrales para pensar el desarrollo económico. La evidencia encontrada encuentra que la organización laboral es mayor cuando las empresas son más grandes, que el salario aumenta al nivel del tamaño de la empresa y que la informalidad laboral se asocia a empresas mas pequeñas.
