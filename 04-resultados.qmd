@@ -16,12 +16,8 @@ pacman::p_load(tidyverse, # Manipulación datos
                sjstats,
                haven,
                ggplot2,
-               ggpubr,
-               gtsummary,
                dplyr,
-               stargazer,
                descr,
-               table1,
                report,
                broom,
                flextable,
@@ -72,11 +68,11 @@ ggplot(promedios, aes(y = reorder(pertenece_sindicato, promedio_tamaño),
 Al considerar la variable original de tamaño de empresa, de carácter ordinal, nos permite realizar una correlación punto biserial entre ambas variables:
 
 ```{r}
-# Realizar correalacion punto biserial
+# Realizar correlación punto biserial
 cor.test(proc_casen$pertenece_sindicato, proc_casen$tamaño_empresa)
 ```
 
-La asociación entre la pertenencia a un sindicato y el tamaño de empresa es positiva, moderada y estadísticamente significativa (r = 0.31, p < .001). Por tanto, con un 95% de confianza se puede rechazar la hipótesis de no asociación entre variables, existiendo evidencia a favor de una asociación significativa, positiva y moderada entre la pertenencia a un sindicato y trabajar en una PYME. Esto sugiere que la pertenencia a un sindicato esta asociada a mayores tamaños de empresa.
+La asociación entre la pertenencia a un sindicato y el tamaño de empresa es positiva, moderada y estadísticamente significativa (r = 0.31, p \< .001). Por tanto, con un 95% de confianza se puede rechazar la hipótesis de no asociación entre variables, existiendo evidencia a favor de una asociación significativa, positiva y moderada entre la pertenencia a un sindicato y trabajar en una PYME. Esto sugiere que la pertenencia a un sindicato esta asociada a mayores tamaños de empresa.
 
 ### Hipótesis 2: Un mayor tamaño de empresa se relaciona con mayores salarios.
 
@@ -86,23 +82,41 @@ stats.table <- tidy(test_pyme_salario, conf_int = T)
 nice_table(stats.table, broom = "t.test")
 ```
 
-La prueba t que evalúa la diferencia de medias entre el salario y el trabajo en PYME sugiere que el efecto es positivo y estadísticamente significativo (diferencia = 311,385.94, t = 43.11, p < .001). Por tanto, con un 95% de confianza, se puede rechazar la hipótesis nula sobre la existencia de evidencia a favor de nuestra hipótesis alternativa respecto a que el salario de los sindicalizados es en promedio mayor al de los no-sindicalizados, siendo con 95% de confianza  al menos $299,505.89 mayor a los de este ultimo.
+La prueba t que evalúa la diferencia de medias entre el salario y el trabajo en PYME sugiere que el efecto es positivo y estadísticamente significativo (diferencia = 311,385.94, t = 43.11, p \< .001). Por tanto, con un 95% de confianza, se puede rechazar la hipótesis nula sobre la existencia de evidencia a favor de nuestra hipótesis alternativa respecto a que el salario de los sindicalizados es en promedio mayor al de los no-sindicalizados, siendo con 95% de confianza al menos \$299,505.89 mayor a los de este ultimo.
 
 ```{r}
 cor.test(proc_casen$tamaño_empresa, proc_casen$salario)
 ```
 
-La asociación entre el tamaño de empresa y el salario es positiva, pequeña y estadísticamente significativa (r = 0.07, p < .001). Por tanto, con un 95% de confianza se puede rechazar la hipótesis de no asociación entre variables, existiendo evidencia a favor de una asociación significativa entre el tamaño de empresa y el salario. Esto sugiere que el trabajar en una empresa con mas empleados esta asociado a mayores salarios. 
+La asociación entre el tamaño de empresa y el salario es positiva, pequeña y estadísticamente significativa (r = 0.07, p \< .001). Por tanto, con un 95% de confianza se puede rechazar la hipótesis de no asociación entre variables, existiendo evidencia a favor de una asociación significativa entre el tamaño de empresa y el salario. Esto sugiere que el trabajar en una empresa con mas empleados esta asociado a mayores salarios.
 
-### hipotesis 3: la formalidad es mayor en empresas mas grandes 
+### Hipotesis 3: la formalidad es mayor en empresas mas grandes
 
 ```{r}
+sjPlot::sjt.xtab(var.row = proc_casen$pyme, 
+                 var.col = proc_casen$formalidad, 
+                 show.summary = F, 
+                 emph.total = T, 
+                 show.row.prc = T, # porcentaje fila
+                 show.col.prc = T # porcentaje columna
+                 )
+```
+
+A partir de la tabla de contingencia, se observa que la mayoria de los trabajadores informales trabajan en una PYME, mas exactamente el 90,7% de quienes se encuentran en informalidad. Al rededor de un 18.3% de quienes trabajan en una PYME se encontrarian trabajando informalmente, en comparacion al 4.3% en las grandes empresas.
+
+```{r chiq-pyme-formalidad}
 chiqtest <- chisq.test(proc_casen$pyme, proc_casen$formalidad)
 chiqtest
-n <- na.omit(proc_casen %>% select(pyme, formalidad)) %>% nrow()
-cramer <- sqrt(chiqtest$statistic / n*(2-1))
-cramer 
-report(chiqtest)
-33
+
+sjstats::phi(table(proc_casen$pyme, proc_casen$formalidad))
+```
+
+Al realizar una prueba de Chi cuadrado, se permite inferir que hay una asociación estadísticamente significativa (p \< .001) entre trabajar en una PYME y el trabajo formal, junto con un valor Phi (0.295) que sugiere una asociación pequeña. Por tanto, con un 95% de confianza se puede rechazar la hipótesis de no asociación entre variables, existiendo evidencia a favor de una asociación significativa entre trabajar formalmente y trabajar en una PYME.
+
+Al utilizar una correlación punto biserial entre la formalidad y la variable de tamaño de empresa en la que se basa la variable `pyme` utilizada anteriormente nos permite observar de manera mas detallada la asociación entre ambas.
+
+```{r cor-tamaño-formalidad}
 cor.test(proc_casen$tamaño_empresa, proc_casen$formalidad)
 ```
+
+La asociación entre el tamaño de empresa y la formalidad es positiva, moderada y estadísticamente significativa (r = 0.39, p \< .001). Por tanto, con un 95% de confianza se puede rechazar la hipótesis de no asociación entre variables, existiendo evidencia a favor de una asociación significativa entre el tamaño de empresa y el salario. Esto sugiere que el trabajar en una empresa con mas empleados esta asociado a mayor informalidad.
