@@ -102,7 +102,7 @@ sjPlot::sjt.xtab(var.row = proc_casen$pyme,
                  )
 ```
 
-A partir de la tabla de contingencia, se observa que la mayoria de los trabajadores informales trabajan en una PYME, mas exactamente el 90,7% de quienes se encuentran en informalidad. Al rededor de un 18.3% de quienes trabajan en una PYME se encontrarian trabajando informalmente, en comparacion al 4.3% en las grandes empresas.
+A partir de la tabla de contingencia, se observa que la mayoria de los trabajadores informales trabajan en una PYME, mas exactamente el 90,7% de quienes se encuentran en informalidad. Alrededor de un 18.3% de quienes trabajan en una PYME se encontrarian trabajando informalmente, en comparacion al 4.3% en las grandes empresas.
 
 ```{r chiq-pyme-formalidad}
 chiqtest <- chisq.test(proc_casen$pyme, proc_casen$formalidad)
@@ -111,7 +111,7 @@ chiqtest
 sjstats::phi(table(proc_casen$pyme, proc_casen$formalidad))
 ```
 
-Al realizar una prueba de Chi cuadrado, se permite inferir que hay una asociación estadísticamente significativa (p \< .001) entre trabajar en una PYME y el trabajo formal, junto con un valor Phi (0.295) que sugiere una asociación pequeña. Por tanto, con un 95% de confianza se puede rechazar la hipótesis de no asociación entre variables, existiendo evidencia a favor de una asociación significativa entre trabajar formalmente y trabajar en una PYME.
+Al realizar una prueba de Chi cuadrado, se permite inferir que hay una asociación estadísticamente significativa (p \< .001) entre trabajar en una PYME y el trabajo formal, junto con un valor Phi (0.186) que sugiere una asociación pequeña. Por tanto, con un 95% de confianza se puede rechazar la hipótesis de no asociación entre variables, existiendo evidencia a favor de una asociación significativa entre trabajar formalmente y trabajar en una PYME.
 
 Al utilizar una correlación punto biserial entre la formalidad y la variable de tamaño de empresa en la que se basa la variable `pyme` utilizada anteriormente nos permite observar de manera mas detallada la asociación entre ambas.
 
