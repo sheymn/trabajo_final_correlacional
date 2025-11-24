@@ -4,7 +4,19 @@ title: "Metodología"
 
 ## Datos
 
-Para llevar a cabo la presente investigación, se utilizó la Base de Datos de la Encuesta de Caracterización Socioeconómica Nacional (CASEN) del año 2022, desarrollada por el Ministerio de Desarrollo Social y Familia. La CASEN es la principal encuesta de hogares del país y tiene como objetivo medir las condiciones de vida de la población, a través de dimensiones como ingresos, trabajo, educación, salud, vivienda, participación social, seguridad social y género, entre otras. Su propósito central es generar información oficial y comparable que permita evaluar el impacto de las políticas públicas y caracterizar las brechas de desigualdad existentes en Chile. Para este trabajo, se utilizó la dimensión de trabajo, el Módulo O, donde variables relacionadas a los conceptos de organización laboral, tamaño de empresa, salario y formalidad.
+Para llevar a cabo la presente investigación, se utilizó la Base de
+Datos de la Encuesta de Caracterización Socioeconómica Nacional (CASEN)
+del año 2022, desarrollada por el Ministerio de Desarrollo Social y
+Familia. La CASEN es la principal encuesta de hogares del país y tiene
+como objetivo medir las condiciones de vida de la población, a través de
+dimensiones como ingresos, trabajo, educación, salud, vivienda,
+participación social, seguridad social y género, entre otras. Su
+propósito central es generar información oficial y comparable que
+permita evaluar el impacto de las políticas públicas y caracterizar las
+brechas de desigualdad existentes en Chile. Para este trabajo, se
+utilizó la dimensión de trabajo, el Módulo O, donde variables
+relacionadas a los conceptos de organización laboral, tamaño de empresa,
+salario y formalidad.
 
 ## Variables
 
@@ -77,17 +89,41 @@ proc_casen %>%
   kable_classic()
 ```
 
-Se realizó un subset de la base de datos original de la CASEN 2022, en la que e seleccionaron las variables a utilizar y se filtraron por trabajadores ocupados, ya que todas las variables que nos interesaban se seguían de que el encuestado estuviese ocupado. Para evitar cargar nuevamente la base de datos, el subset se realizo previamente y se cargo en este documento, el script para generarlo se encuentra alojado en la carpeta de procesamiento del proyecto.
+Se realizó un subset de la base de datos original de la CASEN 2022, en
+la que e seleccionaron las variables a utilizar y se filtraron por
+trabajadores ocupados, ya que todas las variables que nos interesaban se
+seguían de que el encuestado estuviese ocupado. Para evitar cargar
+nuevamente la base de datos, el subset se realizo previamente y se cargo
+en este documento, el script para generarlo se encuentra alojado en la
+carpeta de procesamiento del proyecto.
 
-Tras seleccionar las variables, se realizó una limpieza de la base de datos. Se re nombraron las variables a manera de facilitar el uso. Las preguntas correspondientes a las variables `tamaño_empresa`, `contrato` y `pertenece_sindicato` solo se respondían si la variable `ocupado` era igual 1, por lo que se filtraron todos los casos que no cumplían esa condición. Posterior a esto, todos los valores -99 y -88, correspondientes a *"No sabe"* y *"No responde"* respectivamente, fueron re-codificados como NAs.
+Tras seleccionar las variables, se realizó una limpieza de la base de
+datos. Se re nombraron las variables a manera de facilitar el uso. Las
+preguntas correspondientes a las variables `tamaño_empresa`, `contrato`
+y `pertenece_sindicato` solo se respondían si la variable `ocupado` era
+igual 1, por lo que se filtraron todos los casos que no cumplían esa
+condición. Posterior a esto, todos los valores -99 y -88,
+correspondientes a *"No sabe"* y *"No responde"* respectivamente, fueron
+re-codificados como NAs.
 
 Se re-codificaron las siguientes variables
 
--   `tamaño_empresa` fue re-codificada como `pyme` para que los casos que tuvieran valores menores o iguales a 5 (correspondiente a la respuesta "*De 50 a 199 personas"*) quedaran con valor 1 y quienes tengan valor 6 (correspondiente a la respuesta *"200 y más personas"*) quedaran con valor 0.
+-   `tamaño_empresa` fue re-codificada como `pyme` para que los casos
+    que tuvieran valores menores o iguales a 5 (correspondiente a la
+    respuesta "*De 50 a 199 personas"*) quedaran con valor 1 y quienes
+    tengan valor 6 (correspondiente a la respuesta *"200 y más
+    personas"*) quedaran con valor 0.
 
--   `contrato` fue re-codificada como `formalidad`, para que los casos con valores 1 y 2 (contrato firmado y contrato sin firmar, respectivamente) pasaran a ser 1 y los casos con valor 3 (no tiene contrato) pasara a ser 0
+-   `contrato` fue re-codificada como `formalidad`, para que los casos
+    con valores 1 y 2 (contrato firmado y contrato sin firmar,
+    respectivamente) pasaran a ser 1 y los casos con valor 3 (no tiene
+    contrato) pasara a ser 0
 
-    -   Respecto al porcentaje de NAs de la variable: la respuesta o no de la pregunta asociada a la variable depende de que los entrevistados sean trabajadores asalariados[^03-metodologia-1]. Al filtrar los datos segun esto la cantidad de NA se reduce significativamente:
+    -   Respecto al porcentaje de NAs de la variable: la respuesta o no
+        de la pregunta asociada a la variable depende de que los
+        entrevistados sean trabajadores asalariados[^03-metodologia-1].
+        Al filtrar los datos segun esto la cantidad de NA se reduce
+        significativamente:
 
     ```{r}
     proc_casen %>%
@@ -97,18 +133,34 @@ Se re-codificaron las siguientes variables
 
     ```
 
--   `pertenece_sindicato` fue re-codificada para cambiar los valores 1 y 2 (pertenecer o no a un sindicato, respectivamente) por 1 y 0 respectivamente.
+-   `pertenece_sindicato` fue re-codificada para cambiar los valores 1 y
+    2 (pertenecer o no a un sindicato, respectivamente) por 1 y 0
+    respectivamente.
 
-[^03-metodologia-1]: Es decir son Empleado(a) u obrero(a) del sector público, Empleado(a) u obrero(a) de empresas públicas, Empleado(a) u obrero(a) del sector privado, Servicio doméstico puertas adentro, Servicio doméstico puertas afuera o FF.AA. y del Orden
+[^03-metodologia-1]: Es decir son Empleado(a) u obrero(a) del sector
+    público, Empleado(a) u obrero(a) de empresas públicas, Empleado(a) u
+    obrero(a) del sector privado, Servicio doméstico puertas adentro,
+    Servicio doméstico puertas afuera o FF.AA. y del Orden
 
 A partir de la tabla, se puede decir que:
 
-Respecto a las variables `tamaño_empresa` y `pyme`, da cuenta que alrededor de la mitad de quienes respondieron trabajan en una empresa con menos de 200 empleados, es decir en una PYME.
+Respecto a las variables `tamaño_empresa` y `pyme`, da cuenta que
+alrededor de la mitad de quienes respondieron trabajan en una empresa
+con menos de 200 empleados, es decir en una PYME.
 
-Respecto a la variable `formalidad`, se puede concluir que la mayoría de quienes respondieron se encuentra en un trabajo formal, siendo alrededor de un 86%.
+Respecto a la variable `formalidad`, se puede concluir que la mayoría de
+quienes respondieron se encuentra en un trabajo formal, siendo alrededor
+de un 86%.
 
-Respecto a la variable `pertenece_sindicato`, se da cuenta que la mayoría no pertenece a un sindicato, los afiliados siendo tan solo un 11.6%.
+Respecto a la variable `pertenece_sindicato`, se da cuenta que la
+mayoría no pertenece a un sindicato, los afiliados siendo tan solo un
+11.6%.
 
 ## Métodos
 
-Breve descripción de los procedimientos aplicados para procesar y analizar la información.
+Por último se emplearon diversos métodos estadísticos para el análisis.
+Se calcularon correlaciones punto biseriales, para analizar relaciones
+entre variables dicotómicas y ordinales, una prueba t para analizar si
+habian diferencias significativas entre variables y pruebas de
+Chi-cuadrado para analizar asociaciones entre variables dicotómicas
+junto al estadístico Phi para medir el tamaño de efecto.s
