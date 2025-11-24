@@ -12,7 +12,7 @@ pacman::p_load(tidyverse, # Manipulación datos
                sjmisc, # Descriptivos
                corrplot, # Correlaciones
                psych, # Test estadísticos
-               kableExtra, # Tablas
+               kableExtra, # Tablas1
                sjstats,
                haven,
                ggplot2,
@@ -24,6 +24,20 @@ pacman::p_load(tidyverse, # Manipulación datos
                rempsyc)
 
 options(scipen = 999) # para desactivar notacion cientifica
+
+# añadir labels
+
+proc_casen$pyme_label <- factor(proc_casen$pyme, 
+                               levels = c(0, 1),
+                               labels = c("No PYME", "PYME"))
+
+proc_casen$sindicato_label <- factor(proc_casen$pertenece_sindicato,
+                                    levels = c(0, 1),
+                                    labels = c("No pertenece", "Pertenece"))
+
+proc_casen$formalidad_label <- factor(proc_casen$formalidad, 
+                               levels = c(0, 1),
+                               labels = c("Informal", "Formal"))
 ```
 
 ## Análisis estadísticos
@@ -34,9 +48,41 @@ options(scipen = 999) # para desactivar notacion cientifica
 -   $H_{A}$: $cor(pertenece_{sindicato}, tamaño_{empresa})$ $\neq$ $0$
 
 ```{r}
-chiqtest <- chisq.test(proc_casen$pyme, proc_casen$pertenece_sindicato)
-chiqtest
-sjstats::phi(table(proc_casen$pyme, proc_casen$pertenece_sindicato))
+sjPlot::sjt.xtab(var.row = proc_casen$pyme_label, 
+                 var.col = proc_casen$sindicato_label, 
+                 show.summary = F, 
+                 emph.total = T, 
+                 show.row.prc = T,
+                 show.col.prc = T,
+                 var.labels = c("Tipo de Empresa", "Afiliación Sindical")
+                 )
+```
+
+A partir de la tabla de contingencia, se observa que la mayoria de los
+trabajadores informales trabajan en una PYME, mas exactamente el 90,7%
+de quienes se encuentran en informalidad. Alrededor de un 18.3% de
+quienes trabajan en una PYME se encontrarian trabajando informalmente,
+en comparacion al 4.3% en las grandes empresas.
+
+```{r}
+chiq_pyme_sindic <- chisq.test(proc_casen$pyme, proc_casen$pertenece_sindicato)
+phi_pyme_sindic <- sjstats::phi(table(proc_casen$pyme, proc_casen$pertenece_sindicato))
+
+tabla_chiq_pyme_sindic <- tidy(chiq_pyme_sindic) %>%
+  mutate(
+    p.value = case_when(
+      p.value < 0.001 ~ "< .001***",
+      p.value < 0.01 ~ paste0(round(p.value, 3), "**"),
+      p.value < 0.05 ~ paste0(round(p.value, 3), "*"),
+      TRUE ~ as.character(round(p.value, 3))
+    ),
+    phi = phi_pyme_sindic
+  ) %>%
+  select(statistic, p.value, parameter, phi)
+
+knitr::kable(tabla_chiq_pyme_sindic, 
+             col.names = c("Chi-cuadrado", "p", "Grados libertad", "Phi"), 
+             align = "c")
 ```
 
 Hay una asociación estadísticamente significativa (p \< .001) y moderada
@@ -130,8 +176,8 @@ mayores salarios.
 -   $H_{A}$: $cor(tamaño_{empresa}, formalidad)$ $\neq$ $0$
 
 ```{r}
-sjPlot::sjt.xtab(var.row = proc_casen$pyme, 
-                 var.col = proc_casen$formalidad, 
+sjPlot::sjt.xtab(var.row = proc_casen$pyme_label, 
+                 var.col = proc_casen$formalidad_label, 
                  show.summary = F, 
                  emph.total = T, 
                  show.row.prc = T, # porcentaje fila
@@ -146,10 +192,24 @@ quienes trabajan en una PYME se encontrarian trabajando informalmente,
 en comparacion al 4.3% en las grandes empresas.
 
 ```{r chiq-pyme-formalidad}
-chiqtest <- chisq.test(proc_casen$pyme, proc_casen$formalidad)
-chiqtest
+chiq_pyme_formalidad <- chisq.test(proc_casen$pyme, proc_casen$formalidad)
+phi_pyme_formalidad <- sjstats::phi(table(proc_casen$pyme, proc_casen$formalidad))
 
-sjstats::phi(table(proc_casen$pyme, proc_casen$formalidad))
+tabla_chiq_pyme_formalidad <- tidy(chiq_pyme_formalidad) %>%
+  mutate(
+    p.value = case_when(
+      p.value < 0.001 ~ "< .001***",
+      p.value < 0.01 ~ paste0(round(p.value, 3), "**"),
+      p.value < 0.05 ~ paste0(round(p.value, 3), "*"),
+      TRUE ~ as.character(round(p.value, 3))
+    ),
+    phi = phi_pyme_formalidad
+  ) %>%
+  select(statistic, p.value, parameter, phi)
+
+knitr::kable(tabla_chiq_pyme_formalidad, 
+             col.names = c("Chi-cuadrado", "p", "Grados libertad", "Phi"), 
+             align = "c")
 ```
 
 Al realizar una prueba de Chi cuadrado, se permite inferir que hay una
