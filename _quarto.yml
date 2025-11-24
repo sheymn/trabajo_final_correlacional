@@ -36,7 +36,7 @@ book:
     - 02-metodologia.qmd
     - 03-resultados.qmd
     - 04-conclusiones.qmd
-    - references.qmd
+    - 05-referencias.qmd
     # Para agregar un nuevo capitulo duplica un archivo .qmd y agregalo aqui:
     # ej: - 07-analisis-cualitativo.qmd
     # Guarda anexos extensos en apendices/ y listalos aqui.

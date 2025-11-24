@@ -58,11 +58,11 @@ sjPlot::sjt.xtab(var.row = proc_casen$pyme_label,
                  )
 ```
 
-A partir de la tabla de contingencia, se observa que la mayoria de los
+A partir de la tabla de contingencia, se observa que la mayoría de los
 trabajadores informales trabajan en una PYME, mas exactamente el 90,7%
 de quienes se encuentran en informalidad. Alrededor de un 18.3% de
-quienes trabajan en una PYME se encontrarian trabajando informalmente,
-en comparacion al 4.3% en las grandes empresas.
+quienes trabajan en una PYME se encontrarían trabajando informalmente,
+en comparación al 4.3% en las grandes empresas.
 
 ```{r}
 chiq_pyme_sindic <- chisq.test(proc_casen$pyme, proc_casen$pertenece_sindicato)
@@ -170,6 +170,21 @@ asociación significativa entre el tamaño de empresa y el salario. Esto
 sugiere que el trabajar en una empresa con mas empleados esta asociado a
 mayores salarios.
 
+```{r}
+# Gráfico de barras con promedios (sin logaritmo)
+proc_casen %>%
+  group_by(tamaño_empresa) %>%
+  summarise(salario_promedio = mean(salario, na.rm = TRUE)) %>%
+  ggplot(aes(x = factor(tamaño_empresa), y = salario_promedio)) +
+  geom_col(fill = "steelblue", alpha = 0.7) +
+  labs(title = "Salario promedio por tamaño de empresa",
+       x = "Tamaño de empresa", 
+       y = "Salario promedio",
+       caption = "Fuente: Elaboración propia en base a CASEN 2022") +
+  theme_minimal() +
+  scale_y_continuous(labels = scales::comma)
+```
+
 ### Hipótesis 3: la formalidad es mayor en empresas mas grandes.
 
 -   $H_{0}$: $cor(tamaño_{empresa}, formalidad)$ $=$ $0$
@@ -237,24 +252,45 @@ asociación significativa entre el tamaño de empresa y el salario. Esto
 sugiere que el trabajar en una empresa con mas empleados esta asociado a
 mayor informalidad.
 
+```{r}
+# Tasa de formalidad por tamaño de empresa 
+proc_casen %>%
+  group_by(tamaño_empresa) %>%
+  summarise(tasa_formalidad = mean(formalidad, na.rm = TRUE)) %>%
+  ggplot(aes(x = factor(tamaño_empresa), y = tasa_formalidad)) +
+  geom_col(fill = "darkgreen", alpha = 0.7) +
+  geom_text(aes(label = scales::percent(tasa_formalidad, accuracy = 0.1)), 
+            vjust = -0.5, size = 3.5, fontface = "bold") +
+  scale_y_continuous(labels = scales::percent) +
+  labs(title = "Tasa de formalidad por tamaño de empresa",
+       subtitle = "Porcentaje de trabajadores formales en cada categoría",
+       x = "Tamaño de empresa",
+       y = "Tasa de formalidad",
+       caption = "Fuente: Elaboración propia en base a CASEN 2022") +
+  theme_minimal() +
+  ylim(0, 1) # Asegura espacio para los textos
+
+
+```
+
 ## Discusión de resultados
 
 Las hipótesis postuladas al principio de nuestro trabajo se pueden
 asociar significativamente con los resultados aquí expuestos, con
 ciertas aristas que requieren una profundización mayor:
 
-1\. **Relación entre tamaño de empresa y nivel de organización
-laboral:** La evidencia sugiere que existe una asociación moderada entre
-ambas variables, lo que entrega evidencia para pensar que si existe una
-diferenciación significativa entre el nivel de organización laboral en
-PYMEs en contraposición al Gran Empresariado, los trabajadores se
-organizan más en grandes empresas que en pequeñas empresas por las
-limitaciones legales impuestas a la negociación por el Plan Laboral.
-Aunque con el matiz de que esta diferenciación no anula la presencia de
-sindicatos en empresas pequeñas. La evidencia sugiere que la tesis de
-Núñez et al. (2025) que plantea que las PYMEs portarían una
-potencialidad de elevar los niveles de organización laboral, está
-equivocada.
+\
+1. **Relación entre tamaño de empresa y nivel de sindicalización:** La
+evidencia sugiere que existe una asociación moderada entre ambas
+variables, lo que entrega evidencia para pensar que si existe una
+diferenciación significativa entre el nivel de sindicalización en PYMEs
+en contraposición al Gran Empresariado, los trabajadores se organizan
+más en grandes empresas que en pequeñas empresas por las limitaciones
+legales impuestas a la negociación por el Plan Laboral. Aunque con el
+matiz de que esta diferenciación no anula la presencia de sindicatos en
+empresas pequeñas. La evidencia sugiere que la tesis de Núñez et al.
+(2025) que plantea que las PYMEs portarían una potencialidad de elevar
+los niveles de sindicalización está equivocada.
 
 2\. **Relación entre tamaño de empresa y salario:** La relación entre el
 nivel salarial percibido por la población ocupada en empresas más
